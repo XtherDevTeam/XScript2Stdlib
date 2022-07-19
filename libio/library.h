@@ -7,7 +7,7 @@
 
 void FuncReturn(XScript::Environment *Env);
 
-void printString(XScript::ParamToMethod Param);
+void println(XScript::ParamToMethod Param);
 
 extern "C" XScript::NativeClassInformation Initialize();
 
