@@ -29,6 +29,10 @@ void startsWith(XScript::ParamToMethod Param);
 
 void endsWith(XScript::ParamToMethod Param);
 
+void find(XScript::ParamToMethod Param);
+
+void substr(XScript::ParamToMethod Param);
+
 extern "C" XScript::NativeClassInformation Initialize();
 
 #endif //XSCRIPT2STDLIB_LIBRARY_H
