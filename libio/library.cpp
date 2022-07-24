@@ -6,6 +6,10 @@
 extern "C" XScript::NativeClassInformation Initialize() {
     XScript::XMap<XScript::XIndexType, XScript::NativeMethodInformation> Methods;
     Methods[XScript::Hash(L"println")] = {0, println};
+    Methods[XScript::Hash(L"readInt")] = {0, readInt};
+    Methods[XScript::Hash(L"readDeci")] = {0, readDeci};
+    Methods[XScript::Hash(L"readBool")] = {0, readBool};
+    Methods[XScript::Hash(L"readStr")] = {0, readStr};
     return {
             L"Jerry Chou",
             L"XScript 2 LibIO",
