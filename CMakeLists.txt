@@ -22,4 +22,5 @@ set(CMAKE_RELEASE_POSTFIX ".xnc")
 
 add_library(io SHARED libio/library.cpp ${SRC_FILES})
 add_library(string SHARED libstring/library.cpp ${SRC_FILES})
+add_library(array SHARED libarray/library.cpp ${SRC_FILES})
 add_executable(main main.cpp)
