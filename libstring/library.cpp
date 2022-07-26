@@ -24,14 +24,19 @@ extern "C" XScript::NativeClassInformation Initialize() {
 XScript::EnvClassObject *CloneStringObject(XScript::Environment *Env) {
     XScript::EnvClassObject *This = Env->Heap.HeapData[Env->Stack.Elements[Env->Stack.FramesInformation.back().From].Value.HeapPointerVal].Value.ClassObjectPointer;
     XScript::EnvClassObject *New = XScript::NewEnvClassObject();
-    *New = *This;
+    *New = XScript::EnvClassObject{*This};
     New->Members[XScript::Hash(L"__buffer__")] = {Env->Heap.PushElement({XScript::EnvObject::ObjectKind::StringObject,
                                                                          (XScript::EnvObject::ObjectValue) {
                                                                                  XScript::CreateEnvStringObject(1)}})};
+
     return New;
 }
 
 void fromBuffer(XScript::ParamToMethod Param) {
+    XScript::BytecodeInterpreter Interpreter{*static_cast<XScript::Environment *>(Param.VMPointer),
+                                             *static_cast<XScript::GarbageCollection *>(Param.VMGC)};
+    Interpreter.GC.Start();
+
     XScript::EnvironmentStackItem Item = static_cast<XScript::Environment *>(Param.VMPointer)->Stack.PopValueFromStack();
     XScript::EnvClassObject *Object = CloneStringObject(static_cast<XScript::Environment *>(Param.VMPointer));
 
@@ -43,12 +48,14 @@ void fromBuffer(XScript::ParamToMethod Param) {
                              (XScript::EnvObject::ObjectValue) {Object}})
             }});
 
-    XScript::BytecodeInterpreter Interpreter{*static_cast<XScript::Environment *>(Param.VMPointer),
-                                             *static_cast<XScript::GarbageCollection *>(Param.VMGC)};
     Interpreter.InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) {(XScript::XIndexType) {0}});
 }
 
 void fromInt(XScript::ParamToMethod Param) {
+    XScript::BytecodeInterpreter Interpreter{*static_cast<XScript::Environment *>(Param.VMPointer),
+                                             *static_cast<XScript::GarbageCollection *>(Param.VMGC)};
+    Interpreter.GC.Start();
+
     XScript::EnvironmentStackItem Item = static_cast<XScript::Environment *>(Param.VMPointer)->Stack.PopValueFromStack();
     XScript::EnvClassObject *Object = CloneStringObject(static_cast<XScript::Environment *>(Param.VMPointer));
 
@@ -65,12 +72,14 @@ void fromInt(XScript::ParamToMethod Param) {
                              (XScript::EnvObject::ObjectValue) {Object}})
             }});
 
-    XScript::BytecodeInterpreter Interpreter{*static_cast<XScript::Environment *>(Param.VMPointer),
-                                             *static_cast<XScript::GarbageCollection *>(Param.VMGC)};
     Interpreter.InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) {(XScript::XIndexType) {0}});
 }
 
 void fromDeci(XScript::ParamToMethod Param) {
+    XScript::BytecodeInterpreter Interpreter{*static_cast<XScript::Environment *>(Param.VMPointer),
+                                             *static_cast<XScript::GarbageCollection *>(Param.VMGC)};
+    Interpreter.GC.Start();
+
     XScript::EnvironmentStackItem Item = static_cast<XScript::Environment *>(Param.VMPointer)->Stack.PopValueFromStack();
     XScript::EnvClassObject *Object = CloneStringObject(static_cast<XScript::Environment *>(Param.VMPointer));
 
@@ -87,12 +96,13 @@ void fromDeci(XScript::ParamToMethod Param) {
                              (XScript::EnvObject::ObjectValue) {Object}})
             }});
 
-    XScript::BytecodeInterpreter Interpreter{*static_cast<XScript::Environment *>(Param.VMPointer),
-                                             *static_cast<XScript::GarbageCollection *>(Param.VMGC)};
     Interpreter.InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) {(XScript::XIndexType) {0}});
 }
 
 void fromBool(XScript::ParamToMethod Param) {
+    XScript::BytecodeInterpreter Interpreter{*static_cast<XScript::Environment *>(Param.VMPointer),
+                                             *static_cast<XScript::GarbageCollection *>(Param.VMGC)};
+    Interpreter.GC.Start();
     XScript::EnvironmentStackItem Item = static_cast<XScript::Environment *>(Param.VMPointer)->Stack.PopValueFromStack();
     XScript::EnvClassObject *Object = CloneStringObject(static_cast<XScript::Environment *>(Param.VMPointer));
 
@@ -109,12 +119,13 @@ void fromBool(XScript::ParamToMethod Param) {
                              (XScript::EnvObject::ObjectValue) {Object}})
             }});
 
-    XScript::BytecodeInterpreter Interpreter{*static_cast<XScript::Environment *>(Param.VMPointer),
-                                             *static_cast<XScript::GarbageCollection *>(Param.VMGC)};
     Interpreter.InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) {(XScript::XIndexType) {0}});
 }
 
 void startsWith(XScript::ParamToMethod Param) {
+    XScript::BytecodeInterpreter Interpreter{*static_cast<XScript::Environment *>(Param.VMPointer),
+                                             *static_cast<XScript::GarbageCollection *>(Param.VMGC)};
+
     XScript::EnvironmentStackItem Right = static_cast<XScript::Environment *>(Param.VMPointer)->Stack.PopValueFromStack();
     XScript::EnvironmentStackItem Left = static_cast<XScript::Environment *>(Param.VMPointer)->Stack.Elements[static_cast<XScript::Environment *>(Param.VMPointer)->Stack.FramesInformation.back().From];
 
@@ -137,9 +148,6 @@ void startsWith(XScript::ParamToMethod Param) {
         default:
             break;
     }
-
-    XScript::BytecodeInterpreter Interpreter{*static_cast<XScript::Environment *>(Param.VMPointer),
-                                             *static_cast<XScript::GarbageCollection *>(Param.VMGC)};
 
     XScript::XCharacter *p1 = &L->Dest, *p2 = &R->Dest;
     for (; *p1 and *p2; ++p1, ++p2) {
@@ -159,6 +167,9 @@ void startsWith(XScript::ParamToMethod Param) {
 }
 
 void endsWith(XScript::ParamToMethod Param) {
+    XScript::BytecodeInterpreter Interpreter{*static_cast<XScript::Environment *>(Param.VMPointer),
+                                             *static_cast<XScript::GarbageCollection *>(Param.VMGC)};
+
     XScript::EnvironmentStackItem Right = static_cast<XScript::Environment *>(Param.VMPointer)->Stack.PopValueFromStack();
     XScript::EnvironmentStackItem Left = static_cast<XScript::Environment *>(Param.VMPointer)->Stack.Elements[static_cast<XScript::Environment *>(Param.VMPointer)->Stack.FramesInformation.back().From];
     XScript::EnvStringObject *L =
@@ -181,9 +192,6 @@ void endsWith(XScript::ParamToMethod Param) {
             break;
     }
 
-    XScript::BytecodeInterpreter Interpreter{*static_cast<XScript::Environment *>(Param.VMPointer),
-                                             *static_cast<XScript::GarbageCollection *>(Param.VMGC)};
-
     XScript::XCharacter *p1 = &L->Dest + L->Length - 1, *p2 = &R->Dest;
     for (; p1 != &L->Dest - 1 and *p2; --p1, ++p2) {
         if (*p1 != *p2) {
@@ -202,6 +210,9 @@ void endsWith(XScript::ParamToMethod Param) {
 }
 
 void find(XScript::ParamToMethod Param) {
+    XScript::BytecodeInterpreter Interpreter{*static_cast<XScript::Environment *>(Param.VMPointer),
+                                             *static_cast<XScript::GarbageCollection *>(Param.VMGC)};
+
     XScript::XIndexType Start = 0;
     XScript::EnvironmentStackItem Right = static_cast<XScript::Environment *>(Param.VMPointer)->Stack.PopValueFromStack();
     if (Param.ParamsCount == 3) {
@@ -228,9 +239,6 @@ void find(XScript::ParamToMethod Param) {
             break;
     }
 
-    XScript::BytecodeInterpreter Interpreter{*static_cast<XScript::Environment *>(Param.VMPointer),
-                                             *static_cast<XScript::GarbageCollection *>(Param.VMGC)};
-
     XScript::XInteger Res = static_cast<XScript::XInteger>((XScript::XString) {&L->Dest}.find(&R->Dest, Start));
     Interpreter.InstructionStackPushInteger((XScript::BytecodeStructure::InstructionParam) {Res});
 
@@ -238,6 +246,10 @@ void find(XScript::ParamToMethod Param) {
 }
 
 void substr(XScript::ParamToMethod Param) {
+    XScript::BytecodeInterpreter Interpreter{*static_cast<XScript::Environment *>(Param.VMPointer),
+                                             *static_cast<XScript::GarbageCollection *>(Param.VMGC)};
+    Interpreter.GC.Start();
+
     XScript::XIndexType Start = 0, End = INT_MAX;
     if (Param.ParamsCount == 2) {
         Start = static_cast<XScript::Environment *>(Param.VMPointer)->Stack.PopValueFromStack().Value.IntVal;
@@ -265,14 +277,12 @@ void substr(XScript::ParamToMethod Param) {
             {XScript::EnvObject::ObjectKind::StringObject,
              (XScript::EnvObject::ObjectValue) {XScript::CreateEnvStringObjectFromXString(Got)}});
 
-    static_cast<XScript::Environment *>(Param.VMPointer)->Stack.PushValueToStack((XScript::EnvironmentStackItem){
-        XScript::EnvironmentStackItem::ItemKind::HeapPointer,
-        (XScript::EnvironmentStackItem::ItemValue) {
-                static_cast<XScript::Environment *>(Param.VMPointer)->Heap.PushElement(
-                        {XScript::EnvObject::ObjectKind::ClassObject, (XScript::EnvObject::ObjectValue) {Result}})}
+    static_cast<XScript::Environment *>(Param.VMPointer)->Stack.PushValueToStack((XScript::EnvironmentStackItem) {
+            XScript::EnvironmentStackItem::ItemKind::HeapPointer,
+            (XScript::EnvironmentStackItem::ItemValue) {
+                    static_cast<XScript::Environment *>(Param.VMPointer)->Heap.PushElement(
+                            {XScript::EnvObject::ObjectKind::ClassObject, (XScript::EnvObject::ObjectValue) {Result}})}
     });
 
-    XScript::BytecodeInterpreter Interpreter{*static_cast<XScript::Environment *>(Param.VMPointer),
-                                             *static_cast<XScript::GarbageCollection *>(Param.VMGC)};
     Interpreter.InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) {(XScript::XIndexType) {}});
 }

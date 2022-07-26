@@ -20,6 +20,8 @@ file(GLOB SRC_FILES
 set(CMAKE_DEBUG_POSTFIX ".xnc")
 set(CMAKE_RELEASE_POSTFIX ".xnc")
 
+add_definitions("-g")
+
 add_library(io SHARED libio/library.cpp ${SRC_FILES})
 add_library(string SHARED libstring/library.cpp ${SRC_FILES})
 add_library(array SHARED libarray/library.cpp ${SRC_FILES})

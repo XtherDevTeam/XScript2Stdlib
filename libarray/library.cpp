@@ -1,4 +1,5 @@
 #include <iostream>
+#include <thread>
 
 #include "library.h"
 
@@ -105,13 +106,13 @@ void __instruction_indexOf__(XScript::ParamToMethod Param) {
             static_cast<XScript::Environment *>(Param.VMPointer)->Heap.HeapData[Object->Members[XScript::Hash(
                     L"__buffer__")]].Value.ArrayObjectPointer;
     XScript::XInteger Index = Env->Stack.PopValueFromStack().Value.IntVal;
+    XScript::BytecodeInterpreter Interpreter{*static_cast<XScript::Environment *>(Param.VMPointer),
+                                             *static_cast<XScript::GarbageCollection *>(Param.VMGC)};
+
     Env->Stack.PushValueToStack((XScript::EnvironmentStackItem) {
             XScript::EnvironmentStackItem::ItemKind::HeapPointer,
             (XScript::EnvironmentStackItem::ItemValue) {Array->Elements[Index]}
     });
-
-    XScript::BytecodeInterpreter Interpreter{*static_cast<XScript::Environment *>(Param.VMPointer),
-                                             *static_cast<XScript::GarbageCollection *>(Param.VMGC)};
     Interpreter.InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) {(XScript::XInteger) {}});
 }
 
@@ -129,6 +130,9 @@ void removeIndex(XScript::ParamToMethod Param) {
 }
 
 void resize(XScript::ParamToMethod Param) {
+    XScript::BytecodeInterpreter Interpreter{*static_cast<XScript::Environment *>(Param.VMPointer),
+                                             *static_cast<XScript::GarbageCollection *>(Param.VMGC)};
+    Interpreter.GC.Start();
     auto *Env = static_cast<XScript::Environment *>(Param.VMPointer);
     XScript::EnvClassObject *Object = Env->Heap.HeapData[Env->Stack.Elements[Env->Stack.FramesInformation.back().From].Value.HeapPointerVal].Value.ClassObjectPointer;
     auto *Array =
@@ -136,8 +140,12 @@ void resize(XScript::ParamToMethod Param) {
                     L"__buffer__")]].Value.ArrayObjectPointer;
     XScript::XInteger Index = Env->Stack.PopValueFromStack().Value.IntVal;
     Array->Elements.resize(Index);
-    XScript::BytecodeInterpreter Interpreter{*static_cast<XScript::Environment *>(Param.VMPointer),
-                                             *static_cast<XScript::GarbageCollection *>(Param.VMGC)};
+    for (auto &I : Array->Elements) {
+        I = Env->Heap.PushElement({
+            XScript::EnvObject::ObjectKind::Integer,
+            (XScript::EnvObject::ObjectValue) {(XScript::XInteger) {}}
+        });
+    }
     Interpreter.InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) {(XScript::XInteger) {}});
 }
 
