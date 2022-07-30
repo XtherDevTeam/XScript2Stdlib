@@ -11,7 +11,7 @@ extern "C" XScript::NativeClassInformation Initialize() {
     Methods[XScript::Hash(L"removeIndex")] = {2, removeIndex};
     Methods[XScript::Hash(L"resize")] = {2, resize};
     Methods[XScript::Hash(L"create")] = {1, create};
-    Methods[XScript::Hash(L"__instruction_indexOf__")] = {1, __instruction_indexOf__};
+    Methods[builtin_hash_code___instruction_indexOf__] = {1, __instruction_indexOf__};
     return {
             L"Jerry Chou",
             L"XScript 2 LibArray",

@@ -7,6 +7,14 @@ void xscript2_thread_wrapper(XScript::BytecodeInterpreter *Interpreter, XScript:
     auto InterpreterPool = static_cast<BytecodeInterpreterPool *>(Interpreter->Pool);
 
     Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack = {};
+    // for the result
+    Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.FramesInformation.push_back(
+            {EnvironmentStackFramesInformation::FrameKind::FunctionStackFrame,
+             0,
+             0,
+             {}
+            });
+    // for the function
     Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.FramesInformation.push_back(
             {EnvironmentStackFramesInformation::FrameKind::FunctionStackFrame,
              0,
@@ -94,6 +102,7 @@ void start(XScript::ParamToMethod Param) {
                                                                                                                        static_cast<XInteger>(NewThreadId)}
                                                                                                        });
             Interpreter->InstructionFuncReturn((BytecodeStructure::InstructionParam) {static_cast<XHeapIndexType>(0)});
+            break;
         }
         default:
             Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(

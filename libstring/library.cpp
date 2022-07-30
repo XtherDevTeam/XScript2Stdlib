@@ -14,7 +14,7 @@ extern "C" XScript::NativeClassInformation Initialize() {
     Methods[XScript::Hash(L"endsWith")] = {2, endsWith};
     Methods[XScript::Hash(L"find")] = {2, find};
     Methods[XScript::Hash(L"substr")] = {2, substr};
-    Methods[XScript::Hash(L"__instruction_add__")] = {2, __instruction_add__};
+    Methods[builtin_hash_code___instruction_add__] = {2, __instruction_add__};
 
     return {
             L"Jerry Chou",
