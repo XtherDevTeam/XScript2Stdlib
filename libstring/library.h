@@ -13,7 +13,7 @@ void FuncReturn(XScript::Environment *Env);
  * 从Stack上的`this`指针克隆一个String对象 用于生成对象
  * @param Env VM环境
  */
-XScript::EnvClassObject * CloneStringObject(XScript::Environment *Env);
+XScript::EnvClassObject * CloneStringObject(XScript::BytecodeInterpreter *Env);
 
 // export 部分
 

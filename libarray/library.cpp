@@ -18,57 +18,66 @@ extern "C" XScript::NativeClassInformation Initialize() {
             Methods};
 }
 
-XScript::EnvClassObject *CloneArrayObject(XScript::Environment *Env) {
-    XScript::EnvClassObject *This = Env->Heap.HeapData[Env->Stack.Elements[Env->Stack.FramesInformation.back().From].Value.HeapPointerVal].Value.ClassObjectPointer;
+XScript::EnvClassObject *CloneArrayObject(XScript::BytecodeInterpreter *Interpreter) {
+    XScript::EnvClassObject *This = Interpreter->InterpreterEnvironment->Heap.HeapData[
+            Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.Elements[
+                    Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.FramesInformation.back().From
+            ].Value.HeapPointerVal].Value.ClassObjectPointer;
     XScript::EnvClassObject *New = XScript::NewEnvClassObject();
-    *New = *This;
-    New->Members[XScript::Hash(L"__buffer__")] = {Env->Heap.PushElement({XScript::EnvObject::ObjectKind::StringObject,
-                                                                         (XScript::EnvObject::ObjectValue) {
-                                                                                 XScript::NewEnvArrayObject(1)}})};
+    *New = XScript::EnvClassObject{*This};
+    New->Members[XScript::Hash(L"__buffer__")] = {Interpreter->InterpreterEnvironment->Heap.PushElement(
+            {XScript::EnvObject::ObjectKind::ArrayObject,
+             (XScript::EnvObject::ObjectValue) {
+                     XScript::NewEnvArrayObject(0)}})};
     return New;
 }
 
 void fromBuffer(XScript::ParamToMethod Param) {
-    XScript::EnvironmentStackItem Item = static_cast<XScript::Environment *>(Param.VMPointer)->Stack.PopValueFromStack();
-    XScript::EnvClassObject *Object = CloneArrayObject(static_cast<XScript::Environment *>(Param.VMPointer));
+    using XScript::BytecodeInterpreter;
+    auto *Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
+    XScript::EnvironmentStackItem Item = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack();
+    XScript::EnvClassObject *Object = CloneArrayObject(Interpreter);
 
     Object->Members[XScript::Hash(L"__buffer__")] = Item.Value.HeapPointerVal;
-    static_cast<XScript::Environment *>(Param.VMPointer)->Stack.PushValueToStack(
+    Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
             {XScript::EnvironmentStackItem::ItemKind::HeapPointer, (XScript::EnvironmentStackItem::ItemValue) {
-                    static_cast<XScript::Environment *>(Param.VMPointer)->Heap.PushElement(
+                    Interpreter->InterpreterEnvironment->Heap.PushElement(
                             {XScript::EnvObject::ObjectKind::ClassObject,
                              (XScript::EnvObject::ObjectValue) {Object}})
             }});
 
-    XScript::BytecodeInterpreter Interpreter{*static_cast<XScript::Environment *>(Param.VMPointer),
-                                             *static_cast<XScript::GarbageCollection *>(Param.VMGC)};
-    Interpreter.InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) {(XScript::XIndexType) {0}});
+    Interpreter->InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) {(XScript::XIndexType) {0}});
 }
 
 void push_back(XScript::ParamToMethod Param) {
-    auto *Env = static_cast<XScript::Environment *>(Param.VMPointer);
-    XScript::EnvClassObject *Object = Env->Heap.HeapData[Env->Stack.Elements[Env->Stack.FramesInformation.back().From].Value.HeapPointerVal].Value.ClassObjectPointer;
+    using XScript::BytecodeInterpreter;
+    auto *Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
+
+    XScript::EnvClassObject *Object = Interpreter->InterpreterEnvironment->Heap.HeapData[
+            Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.Elements[
+                    Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.FramesInformation.back().From
+            ].Value.HeapPointerVal].Value.ClassObjectPointer;
     auto *Array =
-            static_cast<XScript::Environment *>(Param.VMPointer)->Heap.HeapData[Object->Members[XScript::Hash(
+            Interpreter->InterpreterEnvironment->Heap.HeapData[Object->Members[XScript::Hash(
                     L"__buffer__")]].Value.ArrayObjectPointer;
 
-    XScript::EnvironmentStackItem ToPush = static_cast<XScript::Environment *>(Param.VMPointer)->Stack.PopValueFromStack();
+    XScript::EnvironmentStackItem ToPush = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack();
     XScript::XHeapIndexType Idx;
     switch (ToPush.Kind) {
         case XScript::EnvironmentStackItem::ItemKind::Integer:
-            Idx = static_cast<XScript::Environment *>(Param.VMPointer)->Heap.PushElement(
+            Idx = Interpreter->InterpreterEnvironment->Heap.PushElement(
                     {
                             XScript::EnvObject::ObjectKind::Integer,
                             (XScript::EnvObject::ObjectValue) {ToPush.Value.IntVal}});
             break;
         case XScript::EnvironmentStackItem::ItemKind::Decimal:
-            Idx = static_cast<XScript::Environment *>(Param.VMPointer)->Heap.PushElement(
+            Idx = Interpreter->InterpreterEnvironment->Heap.PushElement(
                     {
                             XScript::EnvObject::ObjectKind::Decimal,
                             (XScript::EnvObject::ObjectValue) {ToPush.Value.DeciVal}});
             break;
         case XScript::EnvironmentStackItem::ItemKind::Boolean:
-            Idx = static_cast<XScript::Environment *>(Param.VMPointer)->Heap.PushElement(
+            Idx = Interpreter->InterpreterEnvironment->Heap.PushElement(
                     {
                             XScript::EnvObject::ObjectKind::Boolean,
                             (XScript::EnvObject::ObjectValue) {ToPush.Value.BoolVal}});
@@ -80,91 +89,111 @@ void push_back(XScript::ParamToMethod Param) {
             throw XScript::BytecodeInterpretError(L"LibArray: Expected an available value.");
     }
     Array->Elements.push_back(Idx);
-    XScript::BytecodeInterpreter Interpreter{*static_cast<XScript::Environment *>(Param.VMPointer),
-                                             *static_cast<XScript::GarbageCollection *>(Param.VMGC)};
 
-    Interpreter.InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) {(XScript::XIndexType) {0}});
+    Interpreter->InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) {(XScript::XIndexType) {0}});
 }
 
 void pop_back(XScript::ParamToMethod Param) {
-    auto *Env = static_cast<XScript::Environment *>(Param.VMPointer);
-    XScript::EnvClassObject *Object = Env->Heap.HeapData[Env->Stack.Elements[Env->Stack.FramesInformation.back().From].Value.HeapPointerVal].Value.ClassObjectPointer;
-    auto *Array =
-            static_cast<XScript::Environment *>(Param.VMPointer)->Heap.HeapData[Object->Members[XScript::Hash(
-                    L"__buffer__")]].Value.ArrayObjectPointer;
-    Array->Elements.pop_back();
-    XScript::BytecodeInterpreter Interpreter{*static_cast<XScript::Environment *>(Param.VMPointer),
-                                             *static_cast<XScript::GarbageCollection *>(Param.VMGC)};
+    using XScript::BytecodeInterpreter;
+    auto *Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
 
-    Interpreter.InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) {(XScript::XIndexType) {0}});
+    XScript::EnvClassObject *Object = Interpreter->InterpreterEnvironment->Heap.HeapData[
+            Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.Elements[
+                    Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.FramesInformation.back().From
+            ].Value.HeapPointerVal].Value.ClassObjectPointer;
+
+    auto *Array =
+            Interpreter->InterpreterEnvironment->Heap.HeapData[Object->Members[XScript::Hash(
+                    L"__buffer__")]].Value.ArrayObjectPointer;
+
+    Array->Elements.pop_back();
+
+    Interpreter->InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) {(XScript::XIndexType) {0}});
 }
 
 void __instruction_indexOf__(XScript::ParamToMethod Param) {
-    auto *Env = static_cast<XScript::Environment *>(Param.VMPointer);
-    XScript::EnvClassObject *Object = Env->Heap.HeapData[Env->Stack.Elements[Env->Stack.FramesInformation.back().From].Value.HeapPointerVal].Value.ClassObjectPointer;
-    auto *Array =
-            static_cast<XScript::Environment *>(Param.VMPointer)->Heap.HeapData[Object->Members[XScript::Hash(
-                    L"__buffer__")]].Value.ArrayObjectPointer;
-    XScript::XInteger Index = Env->Stack.PopValueFromStack().Value.IntVal;
-    XScript::BytecodeInterpreter Interpreter{*static_cast<XScript::Environment *>(Param.VMPointer),
-                                             *static_cast<XScript::GarbageCollection *>(Param.VMGC)};
+    using XScript::BytecodeInterpreter;
+    auto *Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
 
-    Env->Stack.PushValueToStack((XScript::EnvironmentStackItem) {
+    XScript::EnvClassObject *Object = Interpreter->InterpreterEnvironment->Heap.HeapData[
+            Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.Elements[
+                    Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.FramesInformation.back().From
+            ].Value.HeapPointerVal].Value.ClassObjectPointer;
+
+    auto *Array =
+            Interpreter->InterpreterEnvironment->Heap.HeapData[Object->Members[XScript::Hash(
+                    L"__buffer__")]].Value.ArrayObjectPointer;
+    XScript::XInteger Index = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack().Value.IntVal;
+
+    Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack((XScript::EnvironmentStackItem) {
             XScript::EnvironmentStackItem::ItemKind::HeapPointer,
             (XScript::EnvironmentStackItem::ItemValue) {Array->Elements[Index]}
     });
-    Interpreter.InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) {(XScript::XInteger) {}});
+    Interpreter->InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) {(XScript::XInteger) {}});
 }
 
 void removeIndex(XScript::ParamToMethod Param) {
-    auto *Env = static_cast<XScript::Environment *>(Param.VMPointer);
-    XScript::EnvClassObject *Object = Env->Heap.HeapData[Env->Stack.Elements[Env->Stack.FramesInformation.back().From].Value.HeapPointerVal].Value.ClassObjectPointer;
+    using XScript::BytecodeInterpreter;
+    auto *Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
+
+    XScript::EnvClassObject *Object = Interpreter->InterpreterEnvironment->Heap.HeapData[
+            Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.Elements[
+                    Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.FramesInformation.back().From
+            ].Value.HeapPointerVal].Value.ClassObjectPointer;
+
     auto *Array =
-            static_cast<XScript::Environment *>(Param.VMPointer)->Heap.HeapData[Object->Members[XScript::Hash(
+            Interpreter->InterpreterEnvironment->Heap.HeapData[Object->Members[XScript::Hash(
                     L"__buffer__")]].Value.ArrayObjectPointer;
-    XScript::XInteger Index = Env->Stack.PopValueFromStack().Value.IntVal;
+
+    XScript::XInteger Index = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack().Value.IntVal;
     Array->Elements.erase(Array->Elements.begin() + Index);
-    XScript::BytecodeInterpreter Interpreter{*static_cast<XScript::Environment *>(Param.VMPointer),
-                                             *static_cast<XScript::GarbageCollection *>(Param.VMGC)};
-    Interpreter.InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) {(XScript::XInteger) {}});
+
+    Interpreter->InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) {(XScript::XInteger) {}});
 }
 
 void resize(XScript::ParamToMethod Param) {
-    XScript::BytecodeInterpreter Interpreter{*static_cast<XScript::Environment *>(Param.VMPointer),
-                                             *static_cast<XScript::GarbageCollection *>(Param.VMGC)};
-    Interpreter.GC.Start();
-    auto *Env = static_cast<XScript::Environment *>(Param.VMPointer);
-    XScript::EnvClassObject *Object = Env->Heap.HeapData[Env->Stack.Elements[Env->Stack.FramesInformation.back().From].Value.HeapPointerVal].Value.ClassObjectPointer;
+    using XScript::BytecodeInterpreter;
+    auto *Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
+
+    Interpreter->GC->Start();
+
+    XScript::EnvClassObject *Object = Interpreter->InterpreterEnvironment->Heap.HeapData[
+            Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.Elements[
+                    Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.FramesInformation.back().From
+            ].Value.HeapPointerVal].Value.ClassObjectPointer;
+
     auto *Array =
-            static_cast<XScript::Environment *>(Param.VMPointer)->Heap.HeapData[Object->Members[XScript::Hash(
+            Interpreter->InterpreterEnvironment->Heap.HeapData[Object->Members[XScript::Hash(
                     L"__buffer__")]].Value.ArrayObjectPointer;
-    XScript::XInteger Index = Env->Stack.PopValueFromStack().Value.IntVal;
+
+    XScript::XInteger Index = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack().Value.IntVal;
     Array->Elements.resize(Index);
-    for (auto &I : Array->Elements) {
-        I = Env->Heap.PushElement({
-            XScript::EnvObject::ObjectKind::Integer,
-            (XScript::EnvObject::ObjectValue) {(XScript::XInteger) {}}
-        });
+    for (auto &I: Array->Elements) {
+        I = Interpreter->InterpreterEnvironment->Heap.PushElement({
+                                          XScript::EnvObject::ObjectKind::Integer,
+                                          (XScript::EnvObject::ObjectValue) {(XScript::XInteger) {}}
+                                  });
     }
-    Interpreter.InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) {(XScript::XInteger) {}});
+    Interpreter->InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) {(XScript::XInteger) {}});
 }
 
 void create(XScript::ParamToMethod Param) {
-    auto *Env = static_cast<XScript::Environment *>(Param.VMPointer);
-    XScript::EnvClassObject *Obj = CloneArrayObject(Env);
+    using XScript::BytecodeInterpreter;
+    auto *Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
+
+    XScript::EnvClassObject *Obj = CloneArrayObject(Interpreter);
     auto *Array =
-            static_cast<XScript::Environment *>(Param.VMPointer)->Heap.HeapData[Obj->Members[XScript::Hash(
+            Interpreter->InterpreterEnvironment->Heap.HeapData[Obj->Members[XScript::Hash(
                     L"__buffer__")]].Value.ArrayObjectPointer;
     Array->Elements = {};
-    XScript::XHeapIndexType Idx = Env->Heap.PushElement({
-        XScript::EnvObject::ObjectKind::ClassObject,
-        (XScript::EnvObject::ObjectValue) {Obj}
+    XScript::XHeapIndexType Idx = Interpreter->InterpreterEnvironment->Heap.PushElement({
+                                                                XScript::EnvObject::ObjectKind::ClassObject,
+                                                                (XScript::EnvObject::ObjectValue) {Obj}
+                                                        });
+    Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack((XScript::EnvironmentStackItem) {
+            XScript::EnvironmentStackItem::ItemKind::HeapPointer,
+            (XScript::EnvironmentStackItem::ItemValue) {Idx}
     });
-    Env->Stack.PushValueToStack((XScript::EnvironmentStackItem) {
-        XScript::EnvironmentStackItem::ItemKind::HeapPointer,
-        (XScript::EnvironmentStackItem::ItemValue) {Idx}
-    });
-    XScript::BytecodeInterpreter Interpreter{*static_cast<XScript::Environment *>(Param.VMPointer),
-                                             *static_cast<XScript::GarbageCollection *>(Param.VMGC)};
-    Interpreter.InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) {(XScript::XInteger) {}});
+
+    Interpreter->InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) {(XScript::XInteger) {}});
 }

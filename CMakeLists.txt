@@ -1,7 +1,7 @@
-cmake_minimum_required(VERSION 3.23)
+cmake_minimum_required(VERSION 3.0)
 project(XScript2Stdlib)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 file(GLOB SRC_FILES
         "XScript2/Frontend/*.cpp"
@@ -20,7 +20,11 @@ file(GLOB SRC_FILES
 set(CMAKE_DEBUG_POSTFIX ".xnc")
 set(CMAKE_RELEASE_POSTFIX ".xnc")
 
-add_definitions("-g")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+
+if(CMAKE_BUILD_TYPE MATCHES Debug)
+    add_definitions("-g")
+endif()
 
 add_library(io SHARED libio/library.cpp ${SRC_FILES})
 add_library(string SHARED libstring/library.cpp ${SRC_FILES})

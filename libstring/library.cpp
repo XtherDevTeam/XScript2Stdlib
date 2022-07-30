@@ -21,125 +21,132 @@ extern "C" XScript::NativeClassInformation Initialize() {
             Methods};
 }
 
-XScript::EnvClassObject *CloneStringObject(XScript::Environment *Env) {
-    XScript::EnvClassObject *This = Env->Heap.HeapData[Env->Stack.Elements[Env->Stack.FramesInformation.back().From].Value.HeapPointerVal].Value.ClassObjectPointer;
+XScript::EnvClassObject *CloneStringObject(XScript::BytecodeInterpreter *Interpreter) {
+    XScript::EnvClassObject *This = Interpreter->InterpreterEnvironment->Heap.HeapData[
+            Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.Elements[
+                    Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.FramesInformation.back().From].Value.HeapPointerVal
+    ].Value.ClassObjectPointer;
     XScript::EnvClassObject *New = XScript::NewEnvClassObject();
     *New = XScript::EnvClassObject{*This};
-    New->Members[XScript::Hash(L"__buffer__")] = {Env->Heap.PushElement({XScript::EnvObject::ObjectKind::StringObject,
-                                                                         (XScript::EnvObject::ObjectValue) {
-                                                                                 XScript::CreateEnvStringObject(1)}})};
+    New->Members[XScript::Hash(L"__buffer__")] = {
+            Interpreter->InterpreterEnvironment->Heap.PushElement({XScript::EnvObject::ObjectKind::StringObject,
+                                                                   (XScript::EnvObject::ObjectValue) {
+                                                                           XScript::CreateEnvStringObject(1)}})};
 
     return New;
 }
 
 void fromBuffer(XScript::ParamToMethod Param) {
-    XScript::BytecodeInterpreter Interpreter{*static_cast<XScript::Environment *>(Param.VMPointer),
-                                             *static_cast<XScript::GarbageCollection *>(Param.VMGC)};
-    Interpreter.GC.Start();
+    using XScript::BytecodeInterpreter;
+    auto *Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
 
-    XScript::EnvironmentStackItem Item = static_cast<XScript::Environment *>(Param.VMPointer)->Stack.PopValueFromStack();
-    XScript::EnvClassObject *Object = CloneStringObject(static_cast<XScript::Environment *>(Param.VMPointer));
+    Interpreter->GC->Start();
+
+    XScript::EnvironmentStackItem Item = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack();
+
+    XScript::EnvClassObject *Object = CloneStringObject(Interpreter);
 
     Object->Members[XScript::Hash(L"__buffer__")] = Item.Value.HeapPointerVal;
-    static_cast<XScript::Environment *>(Param.VMPointer)->Stack.PushValueToStack(
+    Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
             {XScript::EnvironmentStackItem::ItemKind::HeapPointer, (XScript::EnvironmentStackItem::ItemValue) {
-                    static_cast<XScript::Environment *>(Param.VMPointer)->Heap.PushElement(
+                    Interpreter->InterpreterEnvironment->Heap.PushElement(
                             {XScript::EnvObject::ObjectKind::ClassObject,
                              (XScript::EnvObject::ObjectValue) {Object}})
             }});
 
-    Interpreter.InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) {(XScript::XIndexType) {0}});
+    Interpreter->InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) {(XScript::XIndexType) {0}});
 }
 
 void fromInt(XScript::ParamToMethod Param) {
-    XScript::BytecodeInterpreter Interpreter{*static_cast<XScript::Environment *>(Param.VMPointer),
-                                             *static_cast<XScript::GarbageCollection *>(Param.VMGC)};
-    Interpreter.GC.Start();
+    using XScript::BytecodeInterpreter;
+    auto *Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
 
-    XScript::EnvironmentStackItem Item = static_cast<XScript::Environment *>(Param.VMPointer)->Stack.PopValueFromStack();
-    XScript::EnvClassObject *Object = CloneStringObject(static_cast<XScript::Environment *>(Param.VMPointer));
+    Interpreter->GC->Start();
+
+    XScript::EnvironmentStackItem Item = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack();
+    XScript::EnvClassObject *Object = CloneStringObject(Interpreter);
 
     Object->Members[XScript::Hash(L"__buffer__")] =
-            static_cast<XScript::Environment *>(Param.VMPointer)->Heap.PushElement(
+            Interpreter->InterpreterEnvironment->Heap.PushElement(
                     (XScript::EnvObject) {XScript::EnvObject::ObjectKind::StringObject,
                                           (XScript::EnvObject::ObjectValue) {XScript::CreateEnvStringObjectFromXString(
                                                   std::to_wstring(Item.Value.IntVal))}});
 
-    static_cast<XScript::Environment *>(Param.VMPointer)->Stack.PushValueToStack(
+    Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
             {XScript::EnvironmentStackItem::ItemKind::HeapPointer, (XScript::EnvironmentStackItem::ItemValue) {
-                    static_cast<XScript::Environment *>(Param.VMPointer)->Heap.PushElement(
+                    Interpreter->InterpreterEnvironment->Heap.PushElement(
                             {XScript::EnvObject::ObjectKind::ClassObject,
                              (XScript::EnvObject::ObjectValue) {Object}})
             }});
 
-    Interpreter.InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) {(XScript::XIndexType) {0}});
+    Interpreter->InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) {(XScript::XIndexType) {0}});
 }
 
 void fromDeci(XScript::ParamToMethod Param) {
-    XScript::BytecodeInterpreter Interpreter{*static_cast<XScript::Environment *>(Param.VMPointer),
-                                             *static_cast<XScript::GarbageCollection *>(Param.VMGC)};
-    Interpreter.GC.Start();
+    using XScript::BytecodeInterpreter;
+    auto *Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
+    Interpreter->GC->Start();
 
-    XScript::EnvironmentStackItem Item = static_cast<XScript::Environment *>(Param.VMPointer)->Stack.PopValueFromStack();
-    XScript::EnvClassObject *Object = CloneStringObject(static_cast<XScript::Environment *>(Param.VMPointer));
+    XScript::EnvironmentStackItem Item = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack();
+    XScript::EnvClassObject *Object = CloneStringObject(Interpreter);
 
     Object->Members[XScript::Hash(L"__buffer__")] =
-            static_cast<XScript::Environment *>(Param.VMPointer)->Heap.PushElement(
+            Interpreter->InterpreterEnvironment->Heap.PushElement(
                     (XScript::EnvObject) {XScript::EnvObject::ObjectKind::StringObject,
                                           (XScript::EnvObject::ObjectValue) {XScript::CreateEnvStringObjectFromXString(
                                                   std::to_wstring(Item.Value.DeciVal))}});
 
-    static_cast<XScript::Environment *>(Param.VMPointer)->Stack.PushValueToStack(
+    Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
             {XScript::EnvironmentStackItem::ItemKind::HeapPointer, (XScript::EnvironmentStackItem::ItemValue) {
-                    static_cast<XScript::Environment *>(Param.VMPointer)->Heap.PushElement(
+                    Interpreter->InterpreterEnvironment->Heap.PushElement(
                             {XScript::EnvObject::ObjectKind::ClassObject,
                              (XScript::EnvObject::ObjectValue) {Object}})
             }});
 
-    Interpreter.InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) {(XScript::XIndexType) {0}});
+    Interpreter->InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) {(XScript::XIndexType) {0}});
 }
 
 void fromBool(XScript::ParamToMethod Param) {
-    XScript::BytecodeInterpreter Interpreter{*static_cast<XScript::Environment *>(Param.VMPointer),
-                                             *static_cast<XScript::GarbageCollection *>(Param.VMGC)};
-    Interpreter.GC.Start();
-    XScript::EnvironmentStackItem Item = static_cast<XScript::Environment *>(Param.VMPointer)->Stack.PopValueFromStack();
-    XScript::EnvClassObject *Object = CloneStringObject(static_cast<XScript::Environment *>(Param.VMPointer));
+    using XScript::BytecodeInterpreter;
+    auto *Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
+    Interpreter->GC->Start();
+    XScript::EnvironmentStackItem Item = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack();
+    XScript::EnvClassObject *Object = CloneStringObject(Interpreter);
 
     Object->Members[XScript::Hash(L"__buffer__")] =
-            static_cast<XScript::Environment *>(Param.VMPointer)->Heap.PushElement(
+            Interpreter->InterpreterEnvironment->Heap.PushElement(
                     (XScript::EnvObject) {XScript::EnvObject::ObjectKind::StringObject,
                                           (XScript::EnvObject::ObjectValue) {XScript::CreateEnvStringObjectFromXString(
                                                   Item.Value.BoolVal ? L"True" : L"False")}});
 
-    static_cast<XScript::Environment *>(Param.VMPointer)->Stack.PushValueToStack(
+    Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
             {XScript::EnvironmentStackItem::ItemKind::HeapPointer, (XScript::EnvironmentStackItem::ItemValue) {
-                    static_cast<XScript::Environment *>(Param.VMPointer)->Heap.PushElement(
+                    Interpreter->InterpreterEnvironment->Heap.PushElement(
                             {XScript::EnvObject::ObjectKind::ClassObject,
                              (XScript::EnvObject::ObjectValue) {Object}})
             }});
 
-    Interpreter.InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) {(XScript::XIndexType) {0}});
+    Interpreter->InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) {(XScript::XIndexType) {0}});
 }
 
 void startsWith(XScript::ParamToMethod Param) {
-    XScript::BytecodeInterpreter Interpreter{*static_cast<XScript::Environment *>(Param.VMPointer),
-                                             *static_cast<XScript::GarbageCollection *>(Param.VMGC)};
+    using XScript::BytecodeInterpreter;
+    auto *Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
 
-    XScript::EnvironmentStackItem Right = static_cast<XScript::Environment *>(Param.VMPointer)->Stack.PopValueFromStack();
-    XScript::EnvironmentStackItem Left = static_cast<XScript::Environment *>(Param.VMPointer)->Stack.Elements[static_cast<XScript::Environment *>(Param.VMPointer)->Stack.FramesInformation.back().From];
+    XScript::EnvironmentStackItem Right = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack();
+    XScript::EnvironmentStackItem Left = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.Elements[Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.FramesInformation.back().From];
 
     XScript::EnvStringObject *L =
-            static_cast<XScript::Environment *>(Param.VMPointer)->Heap.HeapData[static_cast<XScript::Environment *>(Param.VMPointer)->Heap.HeapData[Left.Value.HeapPointerVal].Value.ClassObjectPointer->Members[XScript::Hash(
+            Interpreter->InterpreterEnvironment->Heap.HeapData[Interpreter->InterpreterEnvironment->Heap.HeapData[Left.Value.HeapPointerVal].Value.ClassObjectPointer->Members[XScript::Hash(
                     L"__buffer__")]].Value.StringObjectPointer;
     XScript::EnvObject &ToCompare =
-            static_cast<XScript::Environment *>(Param.VMPointer)->Heap.HeapData[Right.Value.HeapPointerVal];
+            Interpreter->InterpreterEnvironment->Heap.HeapData[Right.Value.HeapPointerVal];
 
     XScript::EnvStringObject *R;
 
     switch (ToCompare.Kind) {
         case XScript::EnvObject::ObjectKind::ClassObject:
-            R = static_cast<XScript::Environment *>(Param.VMPointer)->Heap.HeapData[ToCompare.Value.ClassObjectPointer->Members[XScript::Hash(
+            R = Interpreter->InterpreterEnvironment->Heap.HeapData[ToCompare.Value.ClassObjectPointer->Members[XScript::Hash(
                     L"__buffer__")]].Value.StringObjectPointer;
             break;
         case XScript::EnvObject::ObjectKind::StringObject:
@@ -152,37 +159,37 @@ void startsWith(XScript::ParamToMethod Param) {
     XScript::XCharacter *p1 = &L->Dest, *p2 = &R->Dest;
     for (; *p1 and *p2; ++p1, ++p2) {
         if (*p1 != *p2) {
-            Interpreter.InstructionStackPushBoolean((XScript::BytecodeStructure::InstructionParam) {false});
+            Interpreter->InstructionStackPushBoolean((XScript::BytecodeStructure::InstructionParam) {false});
             break;
         }
     }
 
     if (*p2) {
-        Interpreter.InstructionStackPushBoolean((XScript::BytecodeStructure::InstructionParam) {false});
+        Interpreter->InstructionStackPushBoolean((XScript::BytecodeStructure::InstructionParam) {false});
     } else {
-        Interpreter.InstructionStackPushBoolean((XScript::BytecodeStructure::InstructionParam) {true});
+        Interpreter->InstructionStackPushBoolean((XScript::BytecodeStructure::InstructionParam) {true});
     }
 
-    Interpreter.InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) {(XScript::XIndexType) {}});
+    Interpreter->InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) {(XScript::XIndexType) {}});
 }
 
 void endsWith(XScript::ParamToMethod Param) {
-    XScript::BytecodeInterpreter Interpreter{*static_cast<XScript::Environment *>(Param.VMPointer),
-                                             *static_cast<XScript::GarbageCollection *>(Param.VMGC)};
+    using XScript::BytecodeInterpreter;
+    auto *Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
 
-    XScript::EnvironmentStackItem Right = static_cast<XScript::Environment *>(Param.VMPointer)->Stack.PopValueFromStack();
-    XScript::EnvironmentStackItem Left = static_cast<XScript::Environment *>(Param.VMPointer)->Stack.Elements[static_cast<XScript::Environment *>(Param.VMPointer)->Stack.FramesInformation.back().From];
+    XScript::EnvironmentStackItem Right = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack();
+    XScript::EnvironmentStackItem Left = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.Elements[Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.FramesInformation.back().From];
     XScript::EnvStringObject *L =
-            static_cast<XScript::Environment *>(Param.VMPointer)->Heap.HeapData[static_cast<XScript::Environment *>(Param.VMPointer)->Heap.HeapData[Left.Value.HeapPointerVal].Value.ClassObjectPointer->Members[XScript::Hash(
+            Interpreter->InterpreterEnvironment->Heap.HeapData[Interpreter->InterpreterEnvironment->Heap.HeapData[Left.Value.HeapPointerVal].Value.ClassObjectPointer->Members[XScript::Hash(
                     L"__buffer__")]].Value.StringObjectPointer;
     XScript::EnvObject &ToCompare =
-            static_cast<XScript::Environment *>(Param.VMPointer)->Heap.HeapData[Right.Value.HeapPointerVal];
+            Interpreter->InterpreterEnvironment->Heap.HeapData[Right.Value.HeapPointerVal];
 
     XScript::EnvStringObject *R;
 
     switch (ToCompare.Kind) {
         case XScript::EnvObject::ObjectKind::ClassObject:
-            R = static_cast<XScript::Environment *>(Param.VMPointer)->Heap.HeapData[ToCompare.Value.ClassObjectPointer->Members[XScript::Hash(
+            R = Interpreter->InterpreterEnvironment->Heap.HeapData[ToCompare.Value.ClassObjectPointer->Members[XScript::Hash(
                     L"__buffer__")]].Value.StringObjectPointer;
             break;
         case XScript::EnvObject::ObjectKind::StringObject:
@@ -195,41 +202,41 @@ void endsWith(XScript::ParamToMethod Param) {
     XScript::XCharacter *p1 = &L->Dest + L->Length - 1, *p2 = &R->Dest;
     for (; p1 != &L->Dest - 1 and *p2; --p1, ++p2) {
         if (*p1 != *p2) {
-            Interpreter.InstructionStackPushBoolean((XScript::BytecodeStructure::InstructionParam) {false});
+            Interpreter->InstructionStackPushBoolean((XScript::BytecodeStructure::InstructionParam) {false});
             break;
         }
     }
 
     if (*p2) {
-        Interpreter.InstructionStackPushBoolean((XScript::BytecodeStructure::InstructionParam) {false});
+        Interpreter->InstructionStackPushBoolean((XScript::BytecodeStructure::InstructionParam) {false});
     } else {
-        Interpreter.InstructionStackPushBoolean((XScript::BytecodeStructure::InstructionParam) {true});
+        Interpreter->InstructionStackPushBoolean((XScript::BytecodeStructure::InstructionParam) {true});
     }
 
-    Interpreter.InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) {(XScript::XIndexType) {}});
+    Interpreter->InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) {(XScript::XIndexType) {}});
 }
 
 void find(XScript::ParamToMethod Param) {
-    XScript::BytecodeInterpreter Interpreter{*static_cast<XScript::Environment *>(Param.VMPointer),
-                                             *static_cast<XScript::GarbageCollection *>(Param.VMGC)};
+    using XScript::BytecodeInterpreter;
+    auto *Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
 
     XScript::XIndexType Start = 0;
-    XScript::EnvironmentStackItem Right = static_cast<XScript::Environment *>(Param.VMPointer)->Stack.PopValueFromStack();
+    XScript::EnvironmentStackItem Right = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack();
     if (Param.ParamsCount == 3) {
-        Start = static_cast<XScript::Environment *>(Param.VMPointer)->Stack.PopValueFromStack().Value.IntVal;
+        Start = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack().Value.IntVal;
     }
-    XScript::EnvironmentStackItem Left = static_cast<XScript::Environment *>(Param.VMPointer)->Stack.Elements[static_cast<XScript::Environment *>(Param.VMPointer)->Stack.FramesInformation.back().From];
+    XScript::EnvironmentStackItem Left = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.Elements[Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.FramesInformation.back().From];
     XScript::EnvStringObject *L =
-            static_cast<XScript::Environment *>(Param.VMPointer)->Heap.HeapData[static_cast<XScript::Environment *>(Param.VMPointer)->Heap.HeapData[Left.Value.HeapPointerVal].Value.ClassObjectPointer->Members[XScript::Hash(
+            Interpreter->InterpreterEnvironment->Heap.HeapData[Interpreter->InterpreterEnvironment->Heap.HeapData[Left.Value.HeapPointerVal].Value.ClassObjectPointer->Members[XScript::Hash(
                     L"__buffer__")]].Value.StringObjectPointer;
     XScript::EnvObject &ToCompare =
-            static_cast<XScript::Environment *>(Param.VMPointer)->Heap.HeapData[Right.Value.HeapPointerVal];
+            Interpreter->InterpreterEnvironment->Heap.HeapData[Right.Value.HeapPointerVal];
 
     XScript::EnvStringObject *R;
 
     switch (ToCompare.Kind) {
         case XScript::EnvObject::ObjectKind::ClassObject:
-            R = static_cast<XScript::Environment *>(Param.VMPointer)->Heap.HeapData[ToCompare.Value.ClassObjectPointer->Members[XScript::Hash(
+            R = Interpreter->InterpreterEnvironment->Heap.HeapData[ToCompare.Value.ClassObjectPointer->Members[XScript::Hash(
                     L"__buffer__")]].Value.StringObjectPointer;
             break;
         case XScript::EnvObject::ObjectKind::StringObject:
@@ -240,27 +247,27 @@ void find(XScript::ParamToMethod Param) {
     }
 
     XScript::XInteger Res = static_cast<XScript::XInteger>((XScript::XString) {&L->Dest}.find(&R->Dest, Start));
-    Interpreter.InstructionStackPushInteger((XScript::BytecodeStructure::InstructionParam) {Res});
+    Interpreter->InstructionStackPushInteger((XScript::BytecodeStructure::InstructionParam) {Res});
 
-    Interpreter.InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) {(XScript::XIndexType) {}});
+    Interpreter->InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) {(XScript::XIndexType) {}});
 }
 
 void substr(XScript::ParamToMethod Param) {
-    XScript::BytecodeInterpreter Interpreter{*static_cast<XScript::Environment *>(Param.VMPointer),
-                                             *static_cast<XScript::GarbageCollection *>(Param.VMGC)};
-    Interpreter.GC.Start();
+    using XScript::BytecodeInterpreter;
+    auto *Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
+    Interpreter->GC->Start();
 
     XScript::XIndexType Start = 0, End = INT_MAX;
     if (Param.ParamsCount == 2) {
-        Start = static_cast<XScript::Environment *>(Param.VMPointer)->Stack.PopValueFromStack().Value.IntVal;
+        Start = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack().Value.IntVal;
     } else if (Param.ParamsCount == 3) {
-        End = static_cast<XScript::Environment *>(Param.VMPointer)->Stack.PopValueFromStack().Value.IntVal;
-        Start = static_cast<XScript::Environment *>(Param.VMPointer)->Stack.PopValueFromStack().Value.IntVal;
+        End = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack().Value.IntVal;
+        Start = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack().Value.IntVal;
     }
 
-    XScript::EnvironmentStackItem Left = static_cast<XScript::Environment *>(Param.VMPointer)->Stack.Elements[static_cast<XScript::Environment *>(Param.VMPointer)->Stack.FramesInformation.back().From];
+    XScript::EnvironmentStackItem Left = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.Elements[Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.FramesInformation.back().From];
     XScript::EnvStringObject *L =
-            static_cast<XScript::Environment *>(Param.VMPointer)->Heap.HeapData[static_cast<XScript::Environment *>(Param.VMPointer)->Heap.HeapData[Left.Value.HeapPointerVal].Value.ClassObjectPointer->Members[XScript::Hash(
+            Interpreter->InterpreterEnvironment->Heap.HeapData[Interpreter->InterpreterEnvironment->Heap.HeapData[Left.Value.HeapPointerVal].Value.ClassObjectPointer->Members[XScript::Hash(
                     L"__buffer__")]].Value.StringObjectPointer;
 
     End = End == INT_MAX ? L->Length : Start + End;
@@ -271,18 +278,20 @@ void substr(XScript::ParamToMethod Param) {
     }
 
     XScript::EnvClassObject *Result = XScript::NewEnvClassObject();
-    *Result = *static_cast<XScript::Environment *>(Param.VMPointer)->Heap.HeapData[Left.Value.HeapPointerVal].Value.ClassObjectPointer;
+    *Result = *Interpreter->InterpreterEnvironment->Heap.HeapData[Left.Value.HeapPointerVal].Value.ClassObjectPointer;
     Result->Members[XScript::Hash(
-            L"__buffer__")] = static_cast<XScript::Environment *>(Param.VMPointer)->Heap.PushElement(
+            L"__buffer__")] = Interpreter->InterpreterEnvironment->Heap.PushElement(
             {XScript::EnvObject::ObjectKind::StringObject,
              (XScript::EnvObject::ObjectValue) {XScript::CreateEnvStringObjectFromXString(Got)}});
 
-    static_cast<XScript::Environment *>(Param.VMPointer)->Stack.PushValueToStack((XScript::EnvironmentStackItem) {
-            XScript::EnvironmentStackItem::ItemKind::HeapPointer,
-            (XScript::EnvironmentStackItem::ItemValue) {
-                    static_cast<XScript::Environment *>(Param.VMPointer)->Heap.PushElement(
-                            {XScript::EnvObject::ObjectKind::ClassObject, (XScript::EnvObject::ObjectValue) {Result}})}
-    });
+    Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
+            (XScript::EnvironmentStackItem) {
+                    XScript::EnvironmentStackItem::ItemKind::HeapPointer,
+                    (XScript::EnvironmentStackItem::ItemValue) {
+                            Interpreter->InterpreterEnvironment->Heap.PushElement(
+                                    {XScript::EnvObject::ObjectKind::ClassObject,
+                                     (XScript::EnvObject::ObjectValue) {Result}})}
+            });
 
-    Interpreter.InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) {(XScript::XIndexType) {}});
+    Interpreter->InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) {(XScript::XIndexType) {}});
 }

@@ -7,7 +7,7 @@
 
 void FuncReturn(XScript::Environment *Env);
 
-XScript::EnvClassObject * CloneArrayObject(XScript::Environment *Env);
+XScript::EnvClassObject * CloneArrayObject(XScript::BytecodeInterpreter *Env);
 
 // export part
 
