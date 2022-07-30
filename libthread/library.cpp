@@ -6,10 +6,10 @@ void xscript2_thread_wrapper(XScript::BytecodeInterpreter *Interpreter, XScript:
     using namespace XScript;
     auto InterpreterPool = static_cast<BytecodeInterpreterPool *>(Interpreter->Pool);
 
+    Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack = {};
     Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.FramesInformation.push_back(
             {EnvironmentStackFramesInformation::FrameKind::FunctionStackFrame,
-             Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.FramesInformation.back().From +
-             Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.FramesInformation.back().Length,
+             0,
              0,
              {}
             });

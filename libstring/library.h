@@ -33,6 +33,8 @@ void find(XScript::ParamToMethod Param);
 
 void substr(XScript::ParamToMethod Param);
 
+void __instruction_add__(XScript::ParamToMethod Param);
+
 extern "C" XScript::NativeClassInformation Initialize();
 
 #endif //XSCRIPT2STDLIB_LIBRARY_H
