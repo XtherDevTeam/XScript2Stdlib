@@ -19,6 +19,8 @@ XScript::EnvClassObject * CloneStringObject(XScript::BytecodeInterpreter *Env);
 
 void fromBuffer(XScript::ParamToMethod Param);
 
+void fromBytes(XScript::ParamToMethod Param);
+
 void fromInt(XScript::ParamToMethod Param);
 
 void fromDeci(XScript::ParamToMethod Param);

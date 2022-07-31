@@ -7,6 +7,7 @@
 extern "C" XScript::NativeClassInformation Initialize() {
     XScript::XMap<XScript::XIndexType, XScript::NativeMethodInformation> Methods;
     Methods[XScript::Hash(L"fromBuffer")] = {1, fromBuffer};
+    Methods[XScript::Hash(L"fromBytes")] = {1, fromBytes};
     Methods[XScript::Hash(L"fromInt")] = {1, fromInt};
     Methods[XScript::Hash(L"fromDeci")] = {1, fromDeci};
     Methods[XScript::Hash(L"fromBool")] = {1, fromBool};
@@ -44,6 +45,32 @@ void fromBuffer(XScript::ParamToMethod Param) {
     XScript::EnvClassObject *Object = CloneStringObject(Interpreter);
 
     Object->Members[XScript::Hash(L"__buffer__")] = Item.Value.HeapPointerVal;
+    Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
+            {XScript::EnvironmentStackItem::ItemKind::HeapPointer, (XScript::EnvironmentStackItem::ItemValue) {
+                    Interpreter->InterpreterEnvironment->Heap.PushElement(
+                            {XScript::EnvObject::ObjectKind::ClassObject,
+                             (XScript::EnvObject::ObjectValue) {Object}})
+            }});
+
+    Interpreter->InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) {(XScript::XIndexType) {0}});
+}
+
+void fromBytes(XScript::ParamToMethod Param) {
+    using XScript::BytecodeInterpreter;
+    auto *Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
+
+    Interpreter->GC->Start();
+
+    XScript::EnvironmentStackItem Item = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack();
+
+    XScript::EnvClassObject *Object = CloneStringObject(Interpreter);
+
+    Object->Members[XScript::Hash(L"__buffer__")] = Interpreter->InterpreterEnvironment->Heap.PushElement(
+            {XScript::EnvObject::ObjectKind::StringObject,
+             (XScript::EnvObject::ObjectValue) XScript::CreateEnvStringObjectFromXString(XScript::string2wstring(
+                     CovertToXBytes(
+                             Interpreter->InterpreterEnvironment->Heap.HeapData[Item.Value.HeapPointerVal].Value.BytesObjectPointer)))}
+    );
     Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
             {XScript::EnvironmentStackItem::ItemKind::HeapPointer, (XScript::EnvironmentStackItem::ItemValue) {
                     Interpreter->InterpreterEnvironment->Heap.PushElement(
@@ -339,5 +366,6 @@ void __instruction_add__(XScript::ParamToMethod Param) {
                             })
             });
 
-    Interpreter->InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) {static_cast<XScript::XIndexType>(0)});
+    Interpreter->InstructionFuncReturn(
+            (XScript::BytecodeStructure::InstructionParam) {static_cast<XScript::XIndexType>(0)});
 }
