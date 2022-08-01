@@ -5,7 +5,9 @@
 #include "../XScript2/Executor/Environment.hpp"
 #include "../XScript2/Executor/BytecodeInterpreter.hpp"
 
-void sys_time_ms(XScript::ParamToMethod Param);
+void sys_boot_time_ms(XScript::ParamToMethod Param);
+
+void sys_time(XScript::ParamToMethod Param);
 
 void sys_exit(XScript::ParamToMethod Param);
 
