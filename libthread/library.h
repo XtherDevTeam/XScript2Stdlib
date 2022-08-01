@@ -18,6 +18,8 @@ void id(XScript::ParamToMethod Param);
 
 void getResult(XScript::ParamToMethod Param);
 
-extern "C" XScript::NativeClassInformation Initialize();
+void sleep_ms(XScript::ParamToMethod Param);
+
+extern "C" XScript::NativeLibraryInformation Initialize();
 
 #endif //XSCRIPT2STDLIB_LIBRARY_H

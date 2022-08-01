@@ -68,16 +68,19 @@ ConstructInternalErrorStructure(XScript::BytecodeInterpreter *Interpreter, const
 }
 
 
-extern "C" XScript::NativeClassInformation Initialize() {
+extern "C" XScript::NativeLibraryInformation Initialize() {
     XScript::XMap<XScript::XIndexType, XScript::NativeMethodInformation> Methods;
     Methods[XScript::Hash(L"start")] = {2, start};
     Methods[XScript::Hash(L"id")] = {1, id};
     Methods[XScript::Hash(L"getResult")] = {2, getResult};
+    Methods[XScript::Hash(L"sleep_ms")] = {2, sleep_ms};
 
+    XScript::XMap<XScript::XIndexType, XScript::NativeClassInformation> Classes;
+    Classes[XScript::Hash(L"Thread")] = {L"Thread", Methods};
     return {
             L"Jerry Chou",
             L"XScript 2 LibThread",
-            Methods};
+            Classes};
 }
 
 void start(XScript::ParamToMethod Param) {
@@ -145,3 +148,12 @@ void getResult(XScript::ParamToMethod Param) {
     Interpreter->InstructionFuncReturn((BytecodeStructure::InstructionParam) {static_cast<XHeapIndexType>(0)});
 }
 
+void sleep_ms(XScript::ParamToMethod Param) {
+    using namespace XScript;
+    auto Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
+
+    EnvironmentStackItem Duration = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack();
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(Duration.Value.IntVal));
+    Interpreter->InstructionFuncReturn((BytecodeStructure::InstructionParam) {static_cast<XHeapIndexType>(0)});
+}

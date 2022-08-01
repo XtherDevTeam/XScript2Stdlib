@@ -3,17 +3,20 @@
 #include "library.h"
 
 
-extern "C" XScript::NativeClassInformation Initialize() {
+extern "C" XScript::NativeLibraryInformation Initialize() {
     XScript::XMap<XScript::XIndexType, XScript::NativeMethodInformation> Methods;
     Methods[XScript::Hash(L"println")] = {0, println};
     Methods[XScript::Hash(L"readInt")] = {0, readInt};
     Methods[XScript::Hash(L"readDeci")] = {0, readDeci};
     Methods[XScript::Hash(L"readBool")] = {0, readBool};
     Methods[XScript::Hash(L"readStr")] = {0, readStr};
+
+    XScript::XMap<XScript::XIndexType, XScript::NativeClassInformation> Classes;
+    Classes[XScript::Hash(L"IO")] = {L"IO", Methods};
     return {
             L"Jerry Chou",
             L"XScript 2 LibIO",
-            Methods};
+            Classes};
 }
 
 void println(XScript::ParamToMethod Param) {
