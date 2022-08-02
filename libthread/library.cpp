@@ -6,6 +6,9 @@ void xscript2_thread_wrapper(XScript::BytecodeInterpreter *Interpreter, XScript:
     using namespace XScript;
     auto InterpreterPool = static_cast<BytecodeInterpreterPool *>(Interpreter->Pool);
 
+    Interpreter->IsBusy = true;
+    Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].IsBusy = true;
+
     Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack = {};
     // for the result
     Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.FramesInformation.push_back(
@@ -43,8 +46,6 @@ void xscript2_thread_wrapper(XScript::BytecodeInterpreter *Interpreter, XScript:
             // never run into here.
             break;
     }
-    Interpreter->IsBusy = true;
-    Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].IsBusy = true;
 }
 
 XScript::EnvClassObject *
@@ -99,11 +100,11 @@ void start(XScript::ParamToMethod Param) {
             XIndexType NewThreadId = InterpreterPool->Allocate();
             Interpreter->InterpreterEnvironment->Threads[NewThreadId].Thread =
                     (std::thread) {xscript2_thread_wrapper, &(*InterpreterPool)[NewThreadId], Func, Params};
-            Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack({
-                                                                                                               EnvironmentStackItem::ItemKind::Integer,
-                                                                                                               (EnvironmentStackItem::ItemValue) {
-                                                                                                                       static_cast<XInteger>(NewThreadId)}
-                                                                                                       });
+            Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
+                    {
+                            EnvironmentStackItem::ItemKind::Integer,
+                            (EnvironmentStackItem::ItemValue) {static_cast<XInteger>(NewThreadId)}
+                    });
             Interpreter->InstructionFuncReturn((BytecodeStructure::InstructionParam) {static_cast<XHeapIndexType>(0)});
             break;
         }
