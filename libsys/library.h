@@ -11,6 +11,8 @@ void sys_time(XScript::ParamToMethod Param);
 
 void sys_exit(XScript::ParamToMethod Param);
 
+void sys_GC(XScript::ParamToMethod Param);
+
 extern "C" XScript::NativeLibraryInformation Initialize();
 
 #endif //XSCRIPT2STDLIB_LIBRARY_H
