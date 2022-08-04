@@ -3,7 +3,7 @@
 
 #include "library.h"
 
-extern "C" XScript::NativeClassInformation Initialize() {
+extern "C" XScript::NativeLibraryInformation Initialize() {
     XScript::XMap<XScript::XIndexType, XScript::NativeMethodInformation> Methods;
     Methods[XScript::Hash(L"fromBuffer")] = {2, fromBuffer};
     Methods[XScript::Hash(L"push_back")] = {2, push_back};
@@ -12,10 +12,14 @@ extern "C" XScript::NativeClassInformation Initialize() {
     Methods[XScript::Hash(L"resize")] = {2, resize};
     Methods[XScript::Hash(L"create")] = {1, create};
     Methods[builtin_hash_code___instruction_indexOf__] = {1, __instruction_indexOf__};
+
+    XScript::XMap<XScript::XIndexType, XScript::NativeClassInformation> Classes;
+    Classes[XScript::Hash(L"Array")] = {L"Array", Methods};
+
     return {
             L"Jerry Chou",
             L"XScript 2 LibArray",
-            Methods};
+            Classes};
 }
 
 XScript::EnvClassObject *CloneArrayObject(XScript::BytecodeInterpreter *Interpreter) {

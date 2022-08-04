@@ -1,16 +1,19 @@
 #include "library.h"
 
-extern "C" XScript::NativeClassInformation Initialize() {
+extern "C" XScript::NativeLibraryInformation Initialize() {
     XScript::XMap<XScript::XIndexType, XScript::NativeMethodInformation> Methods;
     Methods[XScript::Hash(L"open")] = {3, open};
     Methods[XScript::Hash(L"close")] = {3, close};
     Methods[XScript::Hash(L"read")] = {3, read};
     Methods[XScript::Hash(L"write")] = {3, write};
 
+    XScript::XMap<XScript::XIndexType, XScript::NativeClassInformation> Classes;
+    Classes[XScript::Hash(L"FS")] = {L"FS", Methods};
+
     return {
             L"Jerry Chou",
             L"XScript 2 LibFS",
-            Methods};
+            Classes};
 }
 
 XScript::EnvClassObject *

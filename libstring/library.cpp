@@ -4,7 +4,7 @@
 #include "library.h"
 
 
-extern "C" XScript::NativeClassInformation Initialize() {
+extern "C" XScript::NativeLibraryInformation Initialize() {
     XScript::XMap<XScript::XIndexType, XScript::NativeMethodInformation> Methods;
     Methods[XScript::Hash(L"fromBuffer")] = {1, fromBuffer};
     Methods[XScript::Hash(L"fromBytes")] = {1, fromBytes};
@@ -17,10 +17,13 @@ extern "C" XScript::NativeClassInformation Initialize() {
     Methods[XScript::Hash(L"substr")] = {2, substr};
     Methods[builtin_hash_code___instruction_add__] = {2, __instruction_add__};
 
+    XScript::XMap<XScript::XIndexType, XScript::NativeClassInformation> Classes;
+    Classes[XScript::Hash(L"String")] = {L"String", Methods};
+
     return {
             L"Jerry Chou",
             L"XScript 2 LibString",
-            Methods};
+            Classes};
 }
 
 XScript::EnvClassObject *CloneStringObject(XScript::BytecodeInterpreter *Interpreter) {

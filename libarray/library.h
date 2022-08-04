@@ -25,6 +25,6 @@ void create(XScript::ParamToMethod Param);
 
 void __instruction_indexOf__(XScript::ParamToMethod Param);
 
-extern "C" XScript::NativeClassInformation Initialize();
+extern "C" XScript::NativeLibraryInformation Initialize();
 
 #endif //XSCRIPT2STDLIB_LIBRARY_H
