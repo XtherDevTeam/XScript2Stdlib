@@ -17,9 +17,6 @@ file(GLOB SRC_FILES
         "XScript2/NativeLibrary/*.cpp"
 )
 
-set(CMAKE_DEBUG_POSTFIX ".xnc")
-set(CMAKE_RELEASE_POSTFIX ".xnc")
-
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 if(CMAKE_BUILD_TYPE MATCHES Debug)
