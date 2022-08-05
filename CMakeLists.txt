@@ -23,13 +23,13 @@ if(CMAKE_BUILD_TYPE MATCHES Debug)
     add_definitions("-g")
 endif()
 
+if (CMAKE_HOST_SYSTEM_NAME MATCHES "Windows")
+    set(CMAKE_SHARED_LINKER_FLAGS "-static")
+endif ()
+
 add_library(io SHARED libio/library.cpp ${SRC_FILES})
 add_library(string SHARED libstring/library.cpp ${SRC_FILES})
 add_library(array SHARED libarray/library.cpp ${SRC_FILES})
 add_library(thread SHARED libthread/library.cpp ${SRC_FILES})
 add_library(fs SHARED libfs/library.cpp ${SRC_FILES})
 add_library(sys SHARED libsys/library.cpp ${SRC_FILES})
-
-if (CMAKE_HOST_SYSTEM_NAME MATCHES "Windows")
-    set(CMAKE_EXE_LINKER_FLAGS "--static -lpthread")
-endif ()
