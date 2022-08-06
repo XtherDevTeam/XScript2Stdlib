@@ -387,7 +387,7 @@ void toInt(XScript::ParamToMethod Param) {
         Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
                 {
                         XScript::EnvironmentStackItem::ItemKind::Integer,
-                        (XScript::EnvironmentStackItem::ItemValue) stol(CovertToXString(L))
+                        (XScript::EnvironmentStackItem::ItemValue) static_cast<XScript::XInteger>(stol(CovertToXString(L)))
                 });
         Interpreter->InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) (XScript::XInteger) {});
     } catch (const std::exception &E) {
@@ -411,7 +411,7 @@ void toDeci(XScript::ParamToMethod Param) {
         Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
                 {
                         XScript::EnvironmentStackItem::ItemKind::Decimal,
-                        (XScript::EnvironmentStackItem::ItemValue) stof(CovertToXString(L))
+                        (XScript::EnvironmentStackItem::ItemValue) static_cast<XScript::XDecimal>(stof(CovertToXString(L)))
                 });
         Interpreter->InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) (XScript::XInteger) {});
     } catch (const std::exception &E) {
