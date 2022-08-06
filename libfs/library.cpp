@@ -298,6 +298,7 @@ void FS_exists(XScript::ParamToMethod Param) {
         PushClassObjectStructure(Interpreter,
                                  ConstructInternalErrorStructure(Interpreter, L"FSError", L"Invalid path."));
         Interpreter->InstructionFuncReturn((BytecodeStructure::InstructionParam) {(XInteger) 0});
+        return;
     }
 
     Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
@@ -322,6 +323,7 @@ void FS_isDirectory(XScript::ParamToMethod Param) {
         PushClassObjectStructure(Interpreter,
                                  ConstructInternalErrorStructure(Interpreter, L"FSError", L"Invalid path."));
         Interpreter->InstructionFuncReturn((BytecodeStructure::InstructionParam) {(XInteger) 0});
+        return;
     }
 
     Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
@@ -347,6 +349,7 @@ void FS_getFileList(XScript::ParamToMethod Param) {
         PushClassObjectStructure(Interpreter,
                                  ConstructInternalErrorStructure(Interpreter, L"FSError", L"Invalid path."));
         Interpreter->InstructionFuncReturn((BytecodeStructure::InstructionParam) {(XInteger) 0});
+        return;
     }
     XArray<XIndexType> StringArray;
 

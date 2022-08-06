@@ -2,6 +2,7 @@
 #include <climits>
 
 #include "library.h"
+#include "../Share/Utils.hpp"
 
 
 extern "C" XScript::NativeLibraryInformation Initialize() {
@@ -371,4 +372,92 @@ void __instruction_add__(XScript::ParamToMethod Param) {
 
     Interpreter->InstructionFuncReturn(
             (XScript::BytecodeStructure::InstructionParam) {static_cast<XScript::XIndexType>(0)});
+}
+
+void toInt(XScript::ParamToMethod Param) {
+    using XScript::BytecodeInterpreter;
+    auto *Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
+
+    XScript::EnvironmentStackItem Left = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.Elements[Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.FramesInformation.back().From];
+    XScript::EnvStringObject *L =
+            Interpreter->InterpreterEnvironment->Heap.HeapData[Interpreter->InterpreterEnvironment->Heap.HeapData[Left.Value.HeapPointerVal].Value.ClassObjectPointer->Members[XScript::Hash(
+                    L"__buffer__")]].Value.StringObjectPointer;
+
+    try {
+        Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
+                {
+                        XScript::EnvironmentStackItem::ItemKind::Integer,
+                        (XScript::EnvironmentStackItem::ItemValue) stol(CovertToXString(L))
+                });
+        Interpreter->InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) (XScript::XInteger) {});
+    } catch (const std::exception &E) {
+        PushClassObjectStructure(Interpreter,
+                                 ConstructInternalErrorStructure(Interpreter, L"CovertError",
+                                                                 L"Cannot covert string to integer"));
+        Interpreter->InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) (XScript::XInteger) {});
+    }
+}
+
+void toDeci(XScript::ParamToMethod Param) {
+    using XScript::BytecodeInterpreter;
+    auto *Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
+
+    XScript::EnvironmentStackItem Left = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.Elements[Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.FramesInformation.back().From];
+    XScript::EnvStringObject *L =
+            Interpreter->InterpreterEnvironment->Heap.HeapData[Interpreter->InterpreterEnvironment->Heap.HeapData[Left.Value.HeapPointerVal].Value.ClassObjectPointer->Members[XScript::Hash(
+                    L"__buffer__")]].Value.StringObjectPointer;
+
+    try {
+        Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
+                {
+                        XScript::EnvironmentStackItem::ItemKind::Decimal,
+                        (XScript::EnvironmentStackItem::ItemValue) stof(CovertToXString(L))
+                });
+        Interpreter->InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) (XScript::XInteger) {});
+    } catch (const std::exception &E) {
+        PushClassObjectStructure(Interpreter,
+                                 ConstructInternalErrorStructure(Interpreter, L"CovertError",
+                                                                 L"Cannot covert string to integer"));
+        Interpreter->InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) (XScript::XInteger) {});
+    }
+}
+
+void toBool(XScript::ParamToMethod Param) {
+    using XScript::BytecodeInterpreter;
+    auto *Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
+
+    XScript::EnvironmentStackItem Left = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.Elements[Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.FramesInformation.back().From];
+    XScript::EnvStringObject *L =
+            Interpreter->InterpreterEnvironment->Heap.HeapData[Interpreter->InterpreterEnvironment->Heap.HeapData[Left.Value.HeapPointerVal].Value.ClassObjectPointer->Members[XScript::Hash(
+                    L"__buffer__")]].Value.StringObjectPointer;
+
+    Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
+            {
+                    XScript::EnvironmentStackItem::ItemKind::Boolean,
+                    (XScript::EnvironmentStackItem::ItemValue) (CovertToXString(L) == L"True")
+            });
+    Interpreter->InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) (XScript::XInteger) {});
+}
+
+void toBytes(XScript::ParamToMethod Param) {
+    using XScript::BytecodeInterpreter;
+    auto *Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
+
+    XScript::EnvironmentStackItem Left = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.Elements[Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.FramesInformation.back().From];
+    XScript::EnvStringObject *L =
+            Interpreter->InterpreterEnvironment->Heap.HeapData[Interpreter->InterpreterEnvironment->Heap.HeapData[Left.Value.HeapPointerVal].Value.ClassObjectPointer->Members[XScript::Hash(
+                    L"__buffer__")]].Value.StringObjectPointer;
+
+    XScript::XHeapIndexType IndexOfBytes = Interpreter->InterpreterEnvironment->Heap.PushElement(
+            {
+                    XScript::EnvObject::ObjectKind::BytesObject,
+                    (XScript::EnvObject::ObjectValue) XScript::CreateEnvBytesObjectFromXBytes(
+                            XScript::wstring2string(CovertToXString(L)))});
+
+    Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
+            {
+                    XScript::EnvironmentStackItem::ItemKind::HeapPointer,
+                    (XScript::EnvironmentStackItem::ItemValue) IndexOfBytes
+            });
+    Interpreter->InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) (XScript::XInteger) {});
 }

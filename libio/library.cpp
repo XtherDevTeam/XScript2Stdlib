@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "library.h"
+#include "../Share/Utils.hpp"
 
 
 extern "C" XScript::NativeLibraryInformation Initialize() {
@@ -24,9 +25,13 @@ void println(XScript::ParamToMethod Param) {
     auto Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
 
     EnvironmentStackItem Item = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack();
-    auto StringToPrint = Interpreter->InterpreterEnvironment->Heap.HeapData[
-            Interpreter->InterpreterEnvironment->Heap.HeapData[Item.Value.HeapPointerVal].Value.ClassObjectPointer->Members[Hash(
-                    L"__buffer__")]].Value.StringObjectPointer;
+    auto StringToPrint = GetStringObject(*Interpreter, Item);
+    if (!StringToPrint) {
+        PushClassObjectStructure(Interpreter,
+                                 ConstructInternalErrorStructure(Interpreter, L"IOError", L"Invalid param"));
+        Interpreter->InstructionFuncReturn((BytecodeStructure::InstructionParam) {(XInteger) 0});
+        return;
+    }
 
     XBytes Str{wstring2string(&StringToPrint->Dest)};
     printf("%s\n", Str.c_str());

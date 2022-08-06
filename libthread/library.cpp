@@ -100,11 +100,11 @@ void start(XScript::ParamToMethod Param) {
 void id(XScript::ParamToMethod Param) {
     using namespace XScript;
     auto Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
-    Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack({
-                                                                                                       EnvironmentStackItem::ItemKind::Integer,
-                                                                                                       (EnvironmentStackItem::ItemValue) {
-                                                                                                               static_cast<XInteger>(Interpreter->ThreadID)}
-                                                                                               });
+    Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
+            {
+                    EnvironmentStackItem::ItemKind::Integer,
+                    (EnvironmentStackItem::ItemValue) {static_cast<XInteger>(Interpreter->ThreadID)}
+            });
     Interpreter->InstructionFuncReturn((BytecodeStructure::InstructionParam) {static_cast<XHeapIndexType>(0)});
 }
 

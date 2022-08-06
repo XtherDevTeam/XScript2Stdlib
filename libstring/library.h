@@ -13,7 +13,7 @@ void FuncReturn(XScript::Environment *Env);
  * 从Stack上的`this`指针克隆一个String对象 用于生成对象
  * @param Env VM环境
  */
-XScript::EnvClassObject * CloneStringObject(XScript::BytecodeInterpreter *Env);
+XScript::EnvClassObject *CloneStringObject(XScript::BytecodeInterpreter *Env);
 
 // export 部分
 
@@ -36,6 +36,14 @@ void find(XScript::ParamToMethod Param);
 void substr(XScript::ParamToMethod Param);
 
 void __instruction_add__(XScript::ParamToMethod Param);
+
+void toInt(XScript::ParamToMethod Param);
+
+void toDeci(XScript::ParamToMethod Param);
+
+void toBool(XScript::ParamToMethod Param);
+
+void toBytes(XScript::ParamToMethod Param);
 
 extern "C" XScript::NativeLibraryInformation Initialize();
 
