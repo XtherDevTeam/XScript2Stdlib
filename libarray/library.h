@@ -23,6 +23,8 @@ void resize(XScript::ParamToMethod Param);
 
 void create(XScript::ParamToMethod Param);
 
+void length(XScript::ParamToMethod Param);
+
 void __instruction_indexOf__(XScript::ParamToMethod Param);
 
 extern "C" XScript::NativeLibraryInformation Initialize();
