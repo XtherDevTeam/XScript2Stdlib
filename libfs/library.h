@@ -19,7 +19,7 @@ void FS_exists(XScript::ParamToMethod Param);
 
 void FS_isDirectory(XScript::ParamToMethod Param);
 
-void FS_getFileList(XScript::ParamToMethod Param);
+void FS_listDirectory(XScript::ParamToMethod Param);
 
 extern "C" XScript::NativeLibraryInformation Initialize();
 

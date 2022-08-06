@@ -14,7 +14,7 @@ extern "C" XScript::NativeLibraryInformation Initialize() {
     Methods = {};
     Methods[XScript::Hash(L"exists")] = {3, FS_exists};
     Methods[XScript::Hash(L"isDirectory")] = {3, FS_isDirectory};
-    Methods[XScript::Hash(L"getFileList")] = {3, FS_getFileList};
+    Methods[XScript::Hash(L"listDirectory")] = {3, FS_listDirectory};
     Classes[XScript::Hash(L"FS")] = {L"FS", Methods};
 
     return {
@@ -337,7 +337,7 @@ void FS_isDirectory(XScript::ParamToMethod Param) {
     Interpreter->InstructionFuncReturn((BytecodeStructure::InstructionParam) {(XInteger) 0});
 }
 
-void FS_getFileList(XScript::ParamToMethod Param) {
+void FS_listDirectory(XScript::ParamToMethod Param) {
     using namespace XScript;
     auto Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
 
@@ -352,7 +352,6 @@ void FS_getFileList(XScript::ParamToMethod Param) {
         return;
     }
     XArray<XIndexType> StringArray;
-
     for (auto &I: std::filesystem::directory_iterator(wstring2string(CovertToXString(FilePath)))) {
         StringArray.push_back(
                 Interpreter->InterpreterEnvironment->Heap.PushElement(
@@ -363,12 +362,18 @@ void FS_getFileList(XScript::ParamToMethod Param) {
                         }
                 ));
     }
-    EnvArrayObject *Object = NewEnvArrayObject(StringArray.size());
+    EnvArrayObject *Object = NewEnvArrayObject(0);
     Object->Elements = StringArray;
-    Interpreter->InterpreterEnvironment->Heap.PushElement(
+    XHeapIndexType Int = Interpreter->InterpreterEnvironment->Heap.PushElement(
             (EnvObject) {
                     XScript::EnvObject::ObjectKind::ArrayObject,
                     (EnvObject::ObjectValue) Object
+            }
+    );
+    Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
+            (EnvironmentStackItem) {
+                    XScript::EnvironmentStackItem::ItemKind::HeapPointer,
+                    (EnvironmentStackItem::ItemValue) Int
             }
     );
     Interpreter->InstructionFuncReturn((BytecodeStructure::InstructionParam) {(XInteger) 0});
