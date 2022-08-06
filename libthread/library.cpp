@@ -89,14 +89,10 @@ void start(XScript::ParamToMethod Param) {
             break;
         }
         default:
-            Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
-                    {EnvironmentStackItem::ItemKind::HeapPointer,
-                     (EnvironmentStackItem::ItemValue) {
-                             Interpreter->InterpreterEnvironment->Heap.PushElement(
-                                     {EnvObject::ObjectKind::ClassObject,
-                                      (EnvObject::ObjectValue) {ConstructInternalErrorStructure(Interpreter,
-                                                                                                L"ThreadError",
-                                                                                                L"The first params isn't a callable object.")}})}});
+            PushClassObjectStructure(
+                    Interpreter,
+                    ConstructInternalErrorStructure(Interpreter, L"ThreadError",
+                                                    L"The first params isn't a callable object."));
             break;
     }
 }
