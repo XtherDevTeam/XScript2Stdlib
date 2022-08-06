@@ -1,5 +1,6 @@
 #include "library.h"
 #include "../XScript2/Executor/BytecodeInterpreterPool.hpp"
+#include "../Share/Utils.hpp"
 
 void xscript2_thread_wrapper(XScript::BytecodeInterpreter *Interpreter, XScript::EnvironmentStackItem Func,
                              const XScript::XArray<XScript::EnvironmentStackItem> &Params) {
@@ -47,27 +48,6 @@ void xscript2_thread_wrapper(XScript::BytecodeInterpreter *Interpreter, XScript:
             break;
     }
 }
-
-XScript::EnvClassObject *
-ConstructInternalErrorStructure(XScript::BytecodeInterpreter *Interpreter, const XScript::XString &ErrorName,
-                                const XScript::XString &ErrorDescription) {
-    using namespace XScript;
-    EnvClassObject *Object = NewEnvClassObject();
-    Object->Self = {Hash(L"Exceptions"), Hash(L"InternalError")};
-    Object->Members[Hash(L"errorName")] = Interpreter->InterpreterEnvironment->Heap.PushElement(
-            {
-                    XScript::EnvObject::ObjectKind::StringObject,
-                    (EnvObject::ObjectValue) CreateEnvStringObjectFromXString(ErrorName)
-            });
-    Object->Members[Hash(L"errorDescription")] = Interpreter->InterpreterEnvironment->Heap.PushElement(
-            {
-                    XScript::EnvObject::ObjectKind::StringObject,
-                    (EnvObject::ObjectValue) CreateEnvStringObjectFromXString(ErrorDescription)
-            });
-
-    return Object;
-}
-
 
 extern "C" XScript::NativeLibraryInformation Initialize() {
     XScript::XMap<XScript::XIndexType, XScript::NativeMethodInformation> Methods;

@@ -5,19 +5,21 @@
 #include "../XScript2/Executor/Environment.hpp"
 #include "../XScript2/Executor/BytecodeInterpreter.hpp"
 
-XScript::EnvClassObject *
-ConstructInternalErrorStructure(XScript::BytecodeInterpreter *Interpreter, const XScript::XString &ErrorName,
-                                const XScript::XString &ErrorDescription);
-
 XScript::EnvClassObject *CloneFSObject(XScript::BytecodeInterpreter *Interpreter);
 
-void open(XScript::ParamToMethod Param);
+void File_open(XScript::ParamToMethod Param);
 
-void close(XScript::ParamToMethod Param);
+void File_close(XScript::ParamToMethod Param);
 
-void read(XScript::ParamToMethod Param);
+void File_read(XScript::ParamToMethod Param);
 
-void write(XScript::ParamToMethod Param);
+void File_write(XScript::ParamToMethod Param);
+
+void FS_exists(XScript::ParamToMethod Param);
+
+void FS_isDirectory(XScript::ParamToMethod Param);
+
+void FS_getFileList(XScript::ParamToMethod Param);
 
 extern "C" XScript::NativeLibraryInformation Initialize();
 

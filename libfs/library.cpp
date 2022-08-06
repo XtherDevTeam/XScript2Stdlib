@@ -1,13 +1,20 @@
 #include "library.h"
+#include "../Share/Utils.hpp"
 
 extern "C" XScript::NativeLibraryInformation Initialize() {
     XScript::XMap<XScript::XIndexType, XScript::NativeMethodInformation> Methods;
-    Methods[XScript::Hash(L"open")] = {3, open};
-    Methods[XScript::Hash(L"close")] = {3, close};
-    Methods[XScript::Hash(L"read")] = {3, read};
-    Methods[XScript::Hash(L"write")] = {3, write};
+    Methods[XScript::Hash(L"open")] = {3, File_open};
+    Methods[XScript::Hash(L"close")] = {3, File_close};
+    Methods[XScript::Hash(L"read")] = {3, File_read};
+    Methods[XScript::Hash(L"write")] = {3, File_write};
 
     XScript::XMap<XScript::XIndexType, XScript::NativeClassInformation> Classes;
+    Classes[XScript::Hash(L"File")] = {L"File", Methods};
+
+    Methods = {};
+    Methods[XScript::Hash(L"exists")] = {3, FS_exists};
+    Methods[XScript::Hash(L"isDirectory")] = {3, FS_isDirectory};
+    Methods[XScript::Hash(L"getFileList")] = {3, FS_getFileList};
     Classes[XScript::Hash(L"FS")] = {L"FS", Methods};
 
     return {
@@ -16,25 +23,6 @@ extern "C" XScript::NativeLibraryInformation Initialize() {
             Classes};
 }
 
-XScript::EnvClassObject *
-ConstructInternalErrorStructure(XScript::BytecodeInterpreter *Interpreter, const XScript::XString &ErrorName,
-                                const XScript::XString &ErrorDescription) {
-    using namespace XScript;
-    EnvClassObject *Object = NewEnvClassObject();
-    Object->Self = {Hash(L"Exceptions"), Hash(L"InternalError")};
-    Object->Members[Hash(L"errorName")] = Interpreter->InterpreterEnvironment->Heap.PushElement(
-            {
-                    XScript::EnvObject::ObjectKind::StringObject,
-                    (EnvObject::ObjectValue) CreateEnvStringObjectFromXString(ErrorName)
-            });
-    Object->Members[Hash(L"errorDescription")] = Interpreter->InterpreterEnvironment->Heap.PushElement(
-            {
-                    XScript::EnvObject::ObjectKind::StringObject,
-                    (EnvObject::ObjectValue) CreateEnvStringObjectFromXString(ErrorDescription)
-            });
-
-    return Object;
-}
 
 XScript::EnvClassObject *CloneFSObject(XScript::BytecodeInterpreter *Interpreter) {
     XScript::EnvClassObject *This = Interpreter->InterpreterEnvironment->Heap.HeapData[
@@ -47,53 +35,37 @@ XScript::EnvClassObject *CloneFSObject(XScript::BytecodeInterpreter *Interpreter
     return New;
 }
 
-void open(XScript::ParamToMethod Param) {
+void File_open(XScript::ParamToMethod Param) {
     using namespace XScript;
     auto Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
 
     auto Temp = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack();
     XScript::EnvStringObject *Flags;
 
-    switch (Interpreter->InterpreterEnvironment->Heap.HeapData[Temp.Value.HeapPointerVal].Kind) {
-        case XScript::EnvObject::ObjectKind::ClassObject:
-            Flags = Interpreter->InterpreterEnvironment->Heap.HeapData[Interpreter->InterpreterEnvironment->Heap.HeapData[Temp.Value.HeapPointerVal].Value.ClassObjectPointer->Members[XScript::Hash(
-                    L"__buffer__")]].Value.StringObjectPointer;
-            break;
-        case XScript::EnvObject::ObjectKind::StringObject:
-            Flags = Interpreter->InterpreterEnvironment->Heap.HeapData[Temp.Value.HeapPointerVal].Value.StringObjectPointer;
-            break;
-        default:
-            break;
+    Flags = GetStringObject(*Interpreter, Temp);
+    if (Flags == nullptr) {
+        PushClassObjectStructure(Interpreter,
+                                 ConstructInternalErrorStructure(Interpreter, L"FileError", L"Cannot open file."));
+        Interpreter->InstructionFuncReturn((BytecodeStructure::InstructionParam) {(XIndexType) {0}});
+        return;
     }
 
     Temp = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack();
     XScript::EnvStringObject *Path;
 
-    switch (Interpreter->InterpreterEnvironment->Heap.HeapData[Temp.Value.HeapPointerVal].Kind) {
-        case XScript::EnvObject::ObjectKind::ClassObject:
-            Path = Interpreter->InterpreterEnvironment->Heap.HeapData[Interpreter->InterpreterEnvironment->Heap.HeapData[Temp.Value.HeapPointerVal].Value.ClassObjectPointer->Members[XScript::Hash(
-                    L"__buffer__")]].Value.StringObjectPointer;
-            break;
-        case XScript::EnvObject::ObjectKind::StringObject:
-            Path = Interpreter->InterpreterEnvironment->Heap.HeapData[Temp.Value.HeapPointerVal].Value.StringObjectPointer;
-            break;
-        default:
-            break;
+    Path = GetStringObject(*Interpreter, Temp);
+    if (Path == nullptr) {
+        PushClassObjectStructure(Interpreter,
+                                 ConstructInternalErrorStructure(Interpreter, L"FileError", L"Cannot open file."));
+        Interpreter->InstructionFuncReturn((BytecodeStructure::InstructionParam) {(XIndexType) {0}});
+        return;
     }
 
     FILE *fp = fopen(wstring2string(CovertToXString(Path)).c_str(), wstring2string(CovertToXString(Flags)).c_str());
 
     if (fp == nullptr) {
-        Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
-                {
-                        EnvironmentStackItem::ItemKind::HeapPointer,
-                        (EnvironmentStackItem::ItemValue) Interpreter->InterpreterEnvironment->Heap.PushElement(
-                                {EnvObject::ObjectKind::ClassObject,
-                                 (EnvObject::ObjectValue) ConstructInternalErrorStructure(Interpreter,
-                                                                                          L"FileError",
-                                                                                          L"Cannot open file.")
-                                })
-                });
+        PushClassObjectStructure(Interpreter,
+                                 ConstructInternalErrorStructure(Interpreter, L"FileError", L"Cannot open file."));
         Interpreter->InstructionFuncReturn((BytecodeStructure::InstructionParam) {(XIndexType) {0}});
         return;
     }
@@ -115,7 +87,7 @@ void open(XScript::ParamToMethod Param) {
     Interpreter->InstructionFuncReturn((BytecodeStructure::InstructionParam) {(XIndexType) {0}});
 }
 
-void close(XScript::ParamToMethod Param) {
+void File_close(XScript::ParamToMethod Param) {
     using namespace XScript;
     auto Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
 
@@ -131,7 +103,7 @@ void close(XScript::ParamToMethod Param) {
     Interpreter->InstructionFuncReturn((BytecodeStructure::InstructionParam) {(XIndexType) {0}});
 }
 
-void read(XScript::ParamToMethod Param) {
+void File_read(XScript::ParamToMethod Param) {
     using namespace XScript;
     auto Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
     XScript::EnvClassObject *This = Interpreter->InterpreterEnvironment->Heap.HeapData[
@@ -170,7 +142,8 @@ void read(XScript::ParamToMethod Param) {
                 {
                         EnvironmentStackItem::ItemKind::HeapPointer,
                         (EnvironmentStackItem::ItemValue) Interpreter->InterpreterEnvironment->Heap.PushElement(
-                                {EnvObject::ObjectKind::BytesObject, (EnvObject::ObjectValue) CreateEnvBytesObjectFromXBytes(Dest)})
+                                {EnvObject::ObjectKind::BytesObject,
+                                 (EnvObject::ObjectValue) CreateEnvBytesObjectFromXBytes(Dest)})
                 });
 
         Interpreter->InstructionFuncReturn((BytecodeStructure::InstructionParam) {(XIndexType) {0}});
@@ -203,7 +176,7 @@ void read(XScript::ParamToMethod Param) {
     }
 }
 
-void write(XScript::ParamToMethod Param) {
+void File_write(XScript::ParamToMethod Param) {
     using namespace XScript;
     auto Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
 
@@ -307,8 +280,93 @@ void write(XScript::ParamToMethod Param) {
                 });
     } else {
         Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
-                {EnvironmentStackItem::ItemKind::Integer,(EnvironmentStackItem::ItemValue) static_cast<XInteger>(0)});
+                {EnvironmentStackItem::ItemKind::Integer, (EnvironmentStackItem::ItemValue) static_cast<XInteger>(0)});
     }
 
     Interpreter->InstructionFuncReturn((BytecodeStructure::InstructionParam) {(XIndexType) {0}});
+}
+
+void FS_exists(XScript::ParamToMethod Param) {
+    using namespace XScript;
+    auto Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
+
+    EnvStringObject *FilePath = GetStringObject(
+            *Interpreter,
+            Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack());
+
+    if (!FilePath) {
+        PushClassObjectStructure(Interpreter,
+                                 ConstructInternalErrorStructure(Interpreter, L"FSError", L"Invalid path."));
+        Interpreter->InstructionFuncReturn((BytecodeStructure::InstructionParam) {(XInteger) 0});
+    }
+
+    Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
+            (EnvironmentStackItem) {
+                    XScript::EnvironmentStackItem::ItemKind::Boolean,
+                    (EnvironmentStackItem::ItemValue) std::filesystem::exists(wstring2string(CovertToXString(FilePath)))
+            }
+    );
+
+    Interpreter->InstructionFuncReturn((BytecodeStructure::InstructionParam) {(XInteger) 0});
+}
+
+void FS_isDirectory(XScript::ParamToMethod Param) {
+    using namespace XScript;
+    auto Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
+
+    EnvStringObject *FilePath = GetStringObject(
+            *Interpreter,
+            Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack());
+
+    if (!FilePath) {
+        PushClassObjectStructure(Interpreter,
+                                 ConstructInternalErrorStructure(Interpreter, L"FSError", L"Invalid path."));
+        Interpreter->InstructionFuncReturn((BytecodeStructure::InstructionParam) {(XInteger) 0});
+    }
+
+    Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
+            (EnvironmentStackItem) {
+                    XScript::EnvironmentStackItem::ItemKind::Boolean,
+                    (EnvironmentStackItem::ItemValue) std::filesystem::is_directory(
+                            wstring2string(CovertToXString(FilePath)))
+            }
+    );
+
+    Interpreter->InstructionFuncReturn((BytecodeStructure::InstructionParam) {(XInteger) 0});
+}
+
+void FS_getFileList(XScript::ParamToMethod Param) {
+    using namespace XScript;
+    auto Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
+
+    EnvStringObject *FilePath = GetStringObject(
+            *Interpreter,
+            Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack());
+
+    if (!FilePath) {
+        PushClassObjectStructure(Interpreter,
+                                 ConstructInternalErrorStructure(Interpreter, L"FSError", L"Invalid path."));
+        Interpreter->InstructionFuncReturn((BytecodeStructure::InstructionParam) {(XInteger) 0});
+    }
+    XArray<XIndexType> StringArray;
+
+    for (auto &I: std::filesystem::directory_iterator(wstring2string(CovertToXString(FilePath)))) {
+        StringArray.push_back(
+                Interpreter->InterpreterEnvironment->Heap.PushElement(
+                        (EnvObject) {
+                                XScript::EnvObject::ObjectKind::StringObject,
+                                (EnvObject::ObjectValue) CreateEnvStringObjectFromXString(
+                                        string2wstring(I.path().string()))
+                        }
+                ));
+    }
+    EnvArrayObject *Object = NewEnvArrayObject(StringArray.size());
+    Object->Elements = StringArray;
+    Interpreter->InterpreterEnvironment->Heap.PushElement(
+            (EnvObject) {
+                    XScript::EnvObject::ObjectKind::ArrayObject,
+                    (EnvObject::ObjectValue) Object
+            }
+    );
+    Interpreter->InstructionFuncReturn((BytecodeStructure::InstructionParam) {(XInteger) 0});
 }

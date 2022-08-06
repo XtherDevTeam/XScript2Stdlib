@@ -3,7 +3,7 @@ project(XScript2Stdlib)
 
 set(CMAKE_CXX_STANDARD 17)
 
-file(GLOB SRC_FILES
+file(GLOB XS2_SRC_FILES
         "XScript2/Frontend/*.cpp"
         "XScript2/Frontend/Parsers/*.cpp"
         "XScript2/Backend/*.cpp"
@@ -17,6 +17,9 @@ file(GLOB SRC_FILES
         "XScript2/NativeLibrary/*.cpp"
 )
 
+file(GLOB SHARE_SRC_FILES
+        "Share/*.cpp")
+
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 if(CMAKE_BUILD_TYPE MATCHES Debug)
@@ -27,9 +30,9 @@ if (CMAKE_HOST_SYSTEM_NAME MATCHES "Windows")
     set(CMAKE_SHARED_LINKER_FLAGS "-static")
 endif ()
 
-add_library(io SHARED libio/library.cpp ${SRC_FILES})
-add_library(string SHARED libstring/library.cpp ${SRC_FILES})
-add_library(array SHARED libarray/library.cpp ${SRC_FILES})
-add_library(thread SHARED libthread/library.cpp ${SRC_FILES})
-add_library(fs SHARED libfs/library.cpp ${SRC_FILES})
-add_library(sys SHARED libsys/library.cpp ${SRC_FILES})
+add_library(io SHARED libio/library.cpp ${XS2_SRC_FILES} ${SHARE_SRC_FILES})
+add_library(string SHARED libstring/library.cpp ${XS2_SRC_FILES} ${SHARE_SRC_FILES})
+add_library(array SHARED libarray/library.cpp ${XS2_SRC_FILES} ${SHARE_SRC_FILES})
+add_library(thread SHARED libthread/library.cpp ${XS2_SRC_FILES} ${SHARE_SRC_FILES})
+add_library(fs SHARED libfs/library.cpp ${XS2_SRC_FILES} ${SHARE_SRC_FILES})
+add_library(sys SHARED libsys/library.cpp ${XS2_SRC_FILES} ${SHARE_SRC_FILES})

@@ -6,11 +6,7 @@
 #include "../XScript2/Executor/BytecodeInterpreter.hpp"
 
 void xscript2_thread_wrapper(XScript::BytecodeInterpreter *Interpreter, XScript::EnvironmentStackItem Func,
-                             const XScript::XArray<XScript::EnvironmentStackItem>& Params);
-
-XScript::EnvClassObject *
-ConstructInternalErrorStructure(XScript::BytecodeInterpreter *Interpreter, const XScript::XString &ErrorName,
-                                const XScript::XString &ErrorDescription);
+                             const XScript::XArray<XScript::EnvironmentStackItem>& Params);;
 
 void start(XScript::ParamToMethod Param);
 
