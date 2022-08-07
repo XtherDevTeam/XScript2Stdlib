@@ -9,7 +9,7 @@ ConstructInternalErrorStructure(XScript::BytecodeInterpreter *Interpreter, const
                                 const XScript::XString &ErrorDescription) {
     using namespace XScript;
     EnvClassObject *Object = NewEnvClassObject();
-    Object->Self = {Hash(L"Exceptions"), Hash(L"InternalError")};
+    Object->Self = {Hash(L"Error"), Hash(L"Error")};
     Object->Members[Hash(L"errorName")] = Interpreter->InterpreterEnvironment->Heap.PushElement(
             {
                     XScript::EnvObject::ObjectKind::StringObject,

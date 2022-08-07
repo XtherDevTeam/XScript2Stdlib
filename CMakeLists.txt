@@ -36,3 +36,4 @@ add_library(array SHARED libarray/library.cpp ${XS2_SRC_FILES} ${SHARE_SRC_FILES
 add_library(thread SHARED libthread/library.cpp ${XS2_SRC_FILES} ${SHARE_SRC_FILES})
 add_library(fs SHARED libfs/library.cpp ${XS2_SRC_FILES} ${SHARE_SRC_FILES})
 add_library(sys SHARED libsys/library.cpp ${XS2_SRC_FILES} ${SHARE_SRC_FILES})
+add_library(error SHARED liberror/library.cpp ${XS2_SRC_FILES} ${SHARE_SRC_FILES})
