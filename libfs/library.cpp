@@ -17,6 +17,11 @@ extern "C" XScript::NativeLibraryInformation Initialize() {
     Methods[XScript::Hash(L"exists")] = {2, FS_exists};
     Methods[XScript::Hash(L"isDirectory")] = {2, FS_isDirectory};
     Methods[XScript::Hash(L"listDirectory")] = {2, FS_listDirectory};
+    Methods[XScript::Hash(L"createDirectories")] = {2, FS_createDirectories};
+    Methods[XScript::Hash(L"createDirectory")] = {2, FS_createDirectory};
+    Methods[XScript::Hash(L"removeDirectories")] = {2, FS_removeDirectories};
+    Methods[XScript::Hash(L"removeDirectory")] = {2, FS_removeDirectory};
+
     Classes[XScript::Hash(L"FS")] = {L"FS", Methods};
 
     return {
@@ -400,5 +405,85 @@ void File_getStdout(XScript::ParamToMethod Param) {
     Interpreter->InterpreterEnvironment->Heap.HeapData[New->Members[Hash(
             L"__file__")]].Value.BytesObjectPointer = (EnvBytesObject *) stdout;
     PushClassObjectStructure(Interpreter, New);
+    Interpreter->InstructionFuncReturn((BytecodeStructure::InstructionParam) {(XInteger) 0});
+}
+
+void FS_removeDirectories(XScript::ParamToMethod Param) {
+    using namespace XScript;
+    auto Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
+
+    EnvStringObject *Str = GetStringObject(*Interpreter,
+                                           Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack());
+
+    std::error_code code;
+    XInteger Int = static_cast<XInteger>(std::filesystem::remove_all(wstring2string(CovertToXString(Str)), code));
+    if (Int) {
+        Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
+                {EnvironmentStackItem::ItemKind::Integer, (EnvironmentStackItem::ItemValue) Int});
+    } else {
+        PushClassObjectStructure(Interpreter, ConstructInternalErrorStructure(
+                Interpreter,
+                L"FSError", L"Cannot remove directories due to " + string2wstring(code.message())));
+    }
+    Interpreter->InstructionFuncReturn((BytecodeStructure::InstructionParam) {(XInteger) 0});
+}
+
+void FS_createDirectories(XScript::ParamToMethod Param) {
+    using namespace XScript;
+    auto Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
+
+    EnvStringObject *Str = GetStringObject(*Interpreter,
+                                           Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack());
+    std::error_code code;
+    XBoolean Res = static_cast<XInteger>(std::filesystem::create_directories(wstring2string(CovertToXString(Str)),
+                                                                             code));
+    if (Res) {
+        Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
+                {EnvironmentStackItem::ItemKind::Integer, (EnvironmentStackItem::ItemValue) Res});
+    } else {
+        PushClassObjectStructure(Interpreter, ConstructInternalErrorStructure(
+                Interpreter,
+                L"FSError", L"Cannot create directories due to " + string2wstring(code.message())));
+    }
+    Interpreter->InstructionFuncReturn((BytecodeStructure::InstructionParam) {(XInteger) 0});
+}
+
+void FS_removeDirectory(XScript::ParamToMethod Param) {
+    using namespace XScript;
+    auto Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
+
+    EnvStringObject *Str = GetStringObject(*Interpreter,
+                                           Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack());
+
+    std::error_code code;
+    XInteger Int = static_cast<XInteger>(std::filesystem::remove(wstring2string(CovertToXString(Str)), code));
+    if (Int) {
+        Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
+                {EnvironmentStackItem::ItemKind::Integer, (EnvironmentStackItem::ItemValue) Int});
+    } else {
+        PushClassObjectStructure(Interpreter, ConstructInternalErrorStructure(
+                Interpreter,
+                L"FSError", L"Cannot remove directories due to " + string2wstring(code.message())));
+    }
+    Interpreter->InstructionFuncReturn((BytecodeStructure::InstructionParam) {(XInteger) 0});
+}
+
+void FS_createDirectory(XScript::ParamToMethod Param) {
+    using namespace XScript;
+    auto Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
+
+    EnvStringObject *Str = GetStringObject(*Interpreter,
+                                           Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack());
+
+    std::error_code code;
+    XInteger Int = static_cast<XInteger>(std::filesystem::create_directory(wstring2string(CovertToXString(Str)), code));
+    if (Int) {
+        Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
+                {EnvironmentStackItem::ItemKind::Integer, (EnvironmentStackItem::ItemValue) Int});
+    } else {
+        PushClassObjectStructure(Interpreter, ConstructInternalErrorStructure(
+                Interpreter,
+                L"FSError", L"Cannot remove directories due to " + string2wstring(code.message())));
+    }
     Interpreter->InstructionFuncReturn((BytecodeStructure::InstructionParam) {(XInteger) 0});
 }

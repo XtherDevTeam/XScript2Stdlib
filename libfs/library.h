@@ -25,6 +25,14 @@ void FS_isDirectory(XScript::ParamToMethod Param);
 
 void FS_listDirectory(XScript::ParamToMethod Param);
 
+void FS_removeDirectories(XScript::ParamToMethod Param);
+
+void FS_createDirectories(XScript::ParamToMethod Param);
+
+void FS_removeDirectory(XScript::ParamToMethod Param);
+
+void FS_createDirectory(XScript::ParamToMethod Param);
+
 extern "C" XScript::NativeLibraryInformation Initialize();
 
 #endif //XSCRIPT2STDLIB_LIBRARY_H
