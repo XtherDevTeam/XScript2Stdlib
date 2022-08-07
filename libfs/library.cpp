@@ -7,14 +7,16 @@ extern "C" XScript::NativeLibraryInformation Initialize() {
     Methods[XScript::Hash(L"close")] = {3, File_close};
     Methods[XScript::Hash(L"read")] = {3, File_read};
     Methods[XScript::Hash(L"write")] = {3, File_write};
+    Methods[XScript::Hash(L"getStdin")] = {3, File_getStdin};
+    Methods[XScript::Hash(L"getStdout")] = {3, File_getStdout};
 
     XScript::XMap<XScript::XIndexType, XScript::NativeClassInformation> Classes;
     Classes[XScript::Hash(L"File")] = {L"File", Methods};
 
     Methods = {};
-    Methods[XScript::Hash(L"exists")] = {3, FS_exists};
-    Methods[XScript::Hash(L"isDirectory")] = {3, FS_isDirectory};
-    Methods[XScript::Hash(L"listDirectory")] = {3, FS_listDirectory};
+    Methods[XScript::Hash(L"exists")] = {2, FS_exists};
+    Methods[XScript::Hash(L"isDirectory")] = {2, FS_isDirectory};
+    Methods[XScript::Hash(L"listDirectory")] = {2, FS_listDirectory};
     Classes[XScript::Hash(L"FS")] = {L"FS", Methods};
 
     return {
@@ -24,7 +26,7 @@ extern "C" XScript::NativeLibraryInformation Initialize() {
 }
 
 
-XScript::EnvClassObject *CloneFSObject(XScript::BytecodeInterpreter *Interpreter) {
+XScript::EnvClassObject *CloneFileObject(XScript::BytecodeInterpreter *Interpreter) {
     XScript::EnvClassObject *This = Interpreter->InterpreterEnvironment->Heap.HeapData[
             Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.Elements[
                     Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.FramesInformation.back().From
@@ -70,7 +72,7 @@ void File_open(XScript::ParamToMethod Param) {
         return;
     }
 
-    auto Object = CloneFSObject(Interpreter);
+    auto Object = CloneFileObject(Interpreter);
 
     Object->Members[Hash(L"__file__")] = Interpreter->InterpreterEnvironment->Heap.PushElement(
             {
@@ -376,5 +378,27 @@ void FS_listDirectory(XScript::ParamToMethod Param) {
                     (EnvironmentStackItem::ItemValue) Int
             }
     );
+    Interpreter->InstructionFuncReturn((BytecodeStructure::InstructionParam) {(XInteger) 0});
+}
+
+void File_getStdin(XScript::ParamToMethod Param) {
+    using namespace XScript;
+    auto Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
+
+    EnvClassObject *New = CloneFileObject(Interpreter);
+    Interpreter->InterpreterEnvironment->Heap.HeapData[New->Members[Hash(
+            L"__file__")]].Value.BytesObjectPointer = (EnvBytesObject *) stdin;
+    PushClassObjectStructure(Interpreter, New);
+    Interpreter->InstructionFuncReturn((BytecodeStructure::InstructionParam) {(XInteger) 0});
+}
+
+void File_getStdout(XScript::ParamToMethod Param) {
+    using namespace XScript;
+    auto Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
+
+    EnvClassObject *New = CloneFileObject(Interpreter);
+    Interpreter->InterpreterEnvironment->Heap.HeapData[New->Members[Hash(
+            L"__file__")]].Value.BytesObjectPointer = (EnvBytesObject *) stdout;
+    PushClassObjectStructure(Interpreter, New);
     Interpreter->InstructionFuncReturn((BytecodeStructure::InstructionParam) {(XInteger) 0});
 }

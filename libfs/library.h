@@ -5,7 +5,7 @@
 #include "../XScript2/Executor/Environment.hpp"
 #include "../XScript2/Executor/BytecodeInterpreter.hpp"
 
-XScript::EnvClassObject *CloneFSObject(XScript::BytecodeInterpreter *Interpreter);
+XScript::EnvClassObject *CloneFileObject(XScript::BytecodeInterpreter *Interpreter);
 
 void File_open(XScript::ParamToMethod Param);
 
@@ -14,6 +14,10 @@ void File_close(XScript::ParamToMethod Param);
 void File_read(XScript::ParamToMethod Param);
 
 void File_write(XScript::ParamToMethod Param);
+
+void File_getStdin(XScript::ParamToMethod Param);
+
+void File_getStdout(XScript::ParamToMethod Param);
 
 void FS_exists(XScript::ParamToMethod Param);
 
