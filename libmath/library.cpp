@@ -37,7 +37,7 @@ extern "C" XScript::NativeLibraryInformation Initialize() {
 void Math_e(XScript::ParamToMethod Param) {
     using namespace XScript;
     auto Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
-    XDecimal Deci = std::numbers::e;
+    XDecimal Deci = std::numbers::e_v<XDecimal>;
     Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
             {EnvironmentStackItem::ItemKind::Decimal, (EnvironmentStackItem::ItemValue) Deci});
 
@@ -47,7 +47,7 @@ void Math_e(XScript::ParamToMethod Param) {
 void Math_pi(XScript::ParamToMethod Param) {
     using namespace XScript;
     auto Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
-    XDecimal Deci = std::numbers::pi;
+    XDecimal Deci = std::numbers::pi_v<XDecimal>;
     Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
             {EnvironmentStackItem::ItemKind::Decimal, (EnvironmentStackItem::ItemValue) Deci});
 
@@ -57,7 +57,7 @@ void Math_pi(XScript::ParamToMethod Param) {
 void Math_log2e(XScript::ParamToMethod Param) {
     using namespace XScript;
     auto Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
-    XDecimal Deci = std::numbers::log2e;
+    XDecimal Deci = std::numbers::log2e_v<XDecimal>;
     Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
             {EnvironmentStackItem::ItemKind::Decimal, (EnvironmentStackItem::ItemValue) Deci});
 
@@ -67,7 +67,7 @@ void Math_log2e(XScript::ParamToMethod Param) {
 void Math_log10e(XScript::ParamToMethod Param) {
     using namespace XScript;
     auto Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
-    XDecimal Deci = std::numbers::log10e;
+    XDecimal Deci = std::numbers::log10e_v<XDecimal>;
     Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
             {EnvironmentStackItem::ItemKind::Decimal, (EnvironmentStackItem::ItemValue) Deci});
 
@@ -77,7 +77,7 @@ void Math_log10e(XScript::ParamToMethod Param) {
 void Math_sqrt2(XScript::ParamToMethod Param) {
     using namespace XScript;
     auto Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
-    XDecimal Deci = std::numbers::sqrt2;
+    XDecimal Deci = std::numbers::sqrt2_v<XDecimal>;
     Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
             {EnvironmentStackItem::ItemKind::Decimal, (EnvironmentStackItem::ItemValue) Deci});
 
@@ -87,7 +87,7 @@ void Math_sqrt2(XScript::ParamToMethod Param) {
 void Math_sqrt3(XScript::ParamToMethod Param) {
     using namespace XScript;
     auto Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
-    XDecimal Deci = std::numbers::sqrt3;
+    XDecimal Deci = std::numbers::sqrt3_v<XDecimal>;
     Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
             {EnvironmentStackItem::ItemKind::Decimal, (EnvironmentStackItem::ItemValue) Deci});
 
