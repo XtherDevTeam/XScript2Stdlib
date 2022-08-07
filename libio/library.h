@@ -5,8 +5,6 @@
 #include "../XScript2/Executor/Environment.hpp"
 #include "../XScript2/Executor/BytecodeInterpreter.hpp"
 
-void FuncReturn(XScript::Environment *Env);
-
 void println(XScript::ParamToMethod Param);
 
 void readInt(XScript::ParamToMethod Param);

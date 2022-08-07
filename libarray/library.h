@@ -5,8 +5,6 @@
 #include "../XScript2/Executor/Environment.hpp"
 #include "../XScript2/Executor/BytecodeInterpreter.hpp"
 
-void FuncReturn(XScript::Environment *Env);
-
 XScript::EnvClassObject * CloneArrayObject(XScript::BytecodeInterpreter *Env);
 
 // export part
