@@ -5,13 +5,13 @@
 #include "../XScript2/Executor/Environment.hpp"
 #include "../XScript2/Executor/BytecodeInterpreter.hpp"
 
-void sys_boot_time_ms(XScript::ParamToMethod Param);
+void System_boot_time_ms(XScript::ParamToMethod Param);
 
-void sys_time(XScript::ParamToMethod Param);
+void System_time(XScript::ParamToMethod Param);
 
-void sys_exit(XScript::ParamToMethod Param);
+void System_exit(XScript::ParamToMethod Param);
 
-void sys_GC(XScript::ParamToMethod Param);
+void System_GC(XScript::ParamToMethod Param);
 
 extern "C" XScript::NativeLibraryInformation Initialize();
 

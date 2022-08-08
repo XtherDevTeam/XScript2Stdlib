@@ -4,10 +4,10 @@
 
 extern "C" XScript::NativeLibraryInformation Initialize() {
     XScript::XMap<XScript::XIndexType, XScript::NativeMethodInformation> Methods;
-    Methods[XScript::Hash(L"time")] = {0, sys_time};
-    Methods[XScript::Hash(L"exit")] = {0, sys_exit};
-    Methods[XScript::Hash(L"boot_time_ms")] = {0, sys_boot_time_ms};
-    Methods[XScript::Hash(L"GC")] = {0, sys_GC};
+    Methods[XScript::Hash(L"time")] = {0, System_time};
+    Methods[XScript::Hash(L"exit")] = {0, System_exit};
+    Methods[XScript::Hash(L"boot_time_ms")] = {0, System_boot_time_ms};
+    Methods[XScript::Hash(L"GC")] = {0, System_GC};
 
     XScript::XMap<XScript::XIndexType, XScript::NativeClassInformation> Classes;
     Classes[XScript::Hash(L"System")] = {L"System", Methods};
@@ -17,7 +17,7 @@ extern "C" XScript::NativeLibraryInformation Initialize() {
             Classes};
 }
 
-void sys_time(XScript::ParamToMethod Param) {
+void System_time(XScript::ParamToMethod Param) {
     using namespace XScript;
     auto Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
     Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
@@ -30,7 +30,7 @@ void sys_time(XScript::ParamToMethod Param) {
     Interpreter->InstructionFuncReturn((BytecodeStructure::InstructionParam) {(XInteger) {}});
 }
 
-void sys_exit(XScript::ParamToMethod Param) {
+void System_exit(XScript::ParamToMethod Param) {
     using namespace XScript;
     auto Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
     EnvironmentStackItem Code = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack();
@@ -38,7 +38,7 @@ void sys_exit(XScript::ParamToMethod Param) {
     exit(Code.Value.IntVal);
 }
 
-void sys_boot_time_ms(XScript::ParamToMethod Param) {
+void System_boot_time_ms(XScript::ParamToMethod Param) {
     using namespace XScript;
     auto Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
     Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
@@ -51,7 +51,7 @@ void sys_boot_time_ms(XScript::ParamToMethod Param) {
     Interpreter->InstructionFuncReturn((BytecodeStructure::InstructionParam) {(XInteger) {}});
 }
 
-void sys_GC(XScript::ParamToMethod Param) {
+void System_GC(XScript::ParamToMethod Param) {
     using namespace XScript;
     auto Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
     Interpreter->GC->Start(true);

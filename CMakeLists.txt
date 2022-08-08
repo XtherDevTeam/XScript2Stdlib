@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 project(XScript2Stdlib)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 file(GLOB XS2_SRC_FILES
         "XScript2/Frontend/*.cpp"
@@ -36,4 +36,5 @@ add_library(array SHARED libarray/library.cpp ${XS2_SRC_FILES} ${SHARE_SRC_FILES
 add_library(thread SHARED libthread/library.cpp ${XS2_SRC_FILES} ${SHARE_SRC_FILES})
 add_library(fs SHARED libfs/library.cpp ${XS2_SRC_FILES} ${SHARE_SRC_FILES})
 add_library(sys SHARED libsys/library.cpp ${XS2_SRC_FILES} ${SHARE_SRC_FILES})
+add_library(math SHARED libmath/library.cpp ${XS2_SRC_FILES} ${SHARE_SRC_FILES})
 add_library(error SHARED liberror/library.cpp ${XS2_SRC_FILES} ${SHARE_SRC_FILES})
