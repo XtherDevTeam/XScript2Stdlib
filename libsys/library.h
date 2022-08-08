@@ -13,6 +13,8 @@ void System_exit(XScript::ParamToMethod Param);
 
 void System_GC(XScript::ParamToMethod Param);
 
+void System_clone(XScript::ParamToMethod Param);
+
 extern "C" XScript::NativeLibraryInformation Initialize();
 
 #endif //XSCRIPT2STDLIB_LIBRARY_H

@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "library.h"
+#include "../Share/Utils.hpp"
 
 extern "C" XScript::NativeLibraryInformation Initialize() {
     XScript::XMap<XScript::XIndexType, XScript::NativeMethodInformation> Methods;
@@ -8,6 +9,7 @@ extern "C" XScript::NativeLibraryInformation Initialize() {
     Methods[XScript::Hash(L"exit")] = {0, System_exit};
     Methods[XScript::Hash(L"boot_time_ms")] = {0, System_boot_time_ms};
     Methods[XScript::Hash(L"GC")] = {0, System_GC};
+    Methods[XScript::Hash(L"clone")] = {0, System_clone};
 
     XScript::XMap<XScript::XIndexType, XScript::NativeClassInformation> Classes;
     Classes[XScript::Hash(L"System")] = {L"System", Methods};
@@ -55,5 +57,22 @@ void System_GC(XScript::ParamToMethod Param) {
     using namespace XScript;
     auto Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
     Interpreter->GC->Start(true);
+    Interpreter->InstructionFuncReturn((BytecodeStructure::InstructionParam) {(XInteger) {}});
+}
+
+void System_clone(XScript::ParamToMethod Param) {
+    using namespace XScript;
+    auto Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
+    EnvironmentStackItem ToClone = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack();
+    if (ToClone.Kind == XScript::EnvironmentStackItem::ItemKind::HeapPointer) {
+        Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
+                {
+                        EnvironmentStackItem::ItemKind::HeapPointer,
+                        (EnvironmentStackItem::ItemValue) CloneObject(Interpreter, ToClone.Value.HeapPointerVal)});
+    } else {
+        PushClassObjectStructure(
+                Interpreter,
+                ConstructInternalErrorStructure(Interpreter, L"SystemError", L"Expected a heap pointer"));
+    }
     Interpreter->InstructionFuncReturn((BytecodeStructure::InstructionParam) {(XInteger) {}});
 }

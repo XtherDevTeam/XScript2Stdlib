@@ -14,6 +14,8 @@ ConstructInternalErrorStructure(XScript::BytecodeInterpreter *Interpreter, const
 
 void PushClassObjectStructure(XScript::BytecodeInterpreter *Interpreter, XScript::EnvClassObject *Object);
 
+XScript::XHeapIndexType CloneObject(XScript::BytecodeInterpreter *Interpreter, XScript::XHeapIndexType Target);
+
 XScript::EnvStringObject *GetStringObject(XScript::BytecodeInterpreter &Interpreter, const XScript::EnvironmentStackItem &Item);
 
 #endif //XSCRIPT2STDLIB_UTILS_HPP
