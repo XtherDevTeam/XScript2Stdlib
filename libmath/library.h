@@ -1,9 +1,12 @@
 #ifndef XSCRIPT2STDLIB_LIBRARY_H
 #define XSCRIPT2STDLIB_LIBRARY_H
 
+#include <random>
 #include "../XScript2/NativeLibrary/NativeLibrary.hpp"
 #include "../XScript2/Executor/Environment.hpp"
 #include "../XScript2/Executor/BytecodeInterpreter.hpp"
+
+extern std::random_device RNG;
 
 void Math_e(XScript::ParamToMethod Param);
 
@@ -40,6 +43,8 @@ void Math_asin(XScript::ParamToMethod Param);
 void Math_acos(XScript::ParamToMethod Param);
 
 void Math_atan(XScript::ParamToMethod Param);
+
+void Math_random(XScript::ParamToMethod Param);
 
 extern "C" XScript::NativeLibraryInformation Initialize();
 

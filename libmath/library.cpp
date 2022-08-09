@@ -3,7 +3,9 @@
 #include "library.h"
 #include "../Share/Utils.hpp"
 #include <numbers>
-#include <math.h>
+#include <cmath>
+
+std::random_device RNG;
 
 extern "C" XScript::NativeLibraryInformation Initialize() {
     XScript::XMap<XScript::XIndexType, XScript::NativeMethodInformation> Methods;
@@ -243,5 +245,22 @@ void Math_atan(XScript::ParamToMethod Param) {
             {EnvironmentStackItem::ItemKind::Integer, (EnvironmentStackItem::ItemValue) static_cast<XDecimal>(atan(x))});
 
     Interpreter->InstructionFuncReturn((BytecodeStructure::InstructionParam) {(XInteger) {}});
+}
+
+void Math_random(XScript::ParamToMethod Param) {
+    using namespace XScript;
+    auto Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
+
+    XInteger Start = LONG_MAX + 1, End = LONG_MAX;
+    if (Param.ParamsCount == 3) {
+        End = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack().Value.IntVal;
+        Start = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack().Value.IntVal;
+    }
+    std::uniform_int_distribution<XInteger> Dist(Start, End);
+
+    Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
+            {
+                EnvironmentStackItem::ItemKind::Integer,
+                (EnvironmentStackItem::ItemValue) static_cast<XInteger>(Dist(RNG))});
 }
 

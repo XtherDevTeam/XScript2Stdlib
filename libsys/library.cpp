@@ -10,6 +10,7 @@ extern "C" XScript::NativeLibraryInformation Initialize() {
     Methods[XScript::Hash(L"boot_time_ms")] = {0, System_boot_time_ms};
     Methods[XScript::Hash(L"GC")] = {0, System_GC};
     Methods[XScript::Hash(L"clone")] = {0, System_clone};
+    Methods[XScript::Hash(L"version")] = {0, System_version};
 
     XScript::XMap<XScript::XIndexType, XScript::NativeClassInformation> Classes;
     Classes[XScript::Hash(L"System")] = {L"System", Methods};
@@ -74,5 +75,17 @@ void System_clone(XScript::ParamToMethod Param) {
                 Interpreter,
                 ConstructInternalErrorStructure(Interpreter, L"SystemError", L"Expected a heap pointer"));
     }
+    Interpreter->InstructionFuncReturn((BytecodeStructure::InstructionParam) {(XInteger) {}});
+}
+
+void System_version(XScript::ParamToMethod Param) {
+    using namespace XScript;
+    auto Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
+
+    auto Idx = Interpreter->InterpreterEnvironment->Heap.PushElement(
+            {XScript::EnvObject::ObjectKind::StringObject,
+             (EnvObject::ObjectValue) CreateEnvStringObjectFromXString(CommitVersion)});
+    Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
+            {EnvironmentStackItem::ItemKind::HeapPointer, (EnvironmentStackItem::ItemValue) Idx});
     Interpreter->InstructionFuncReturn((BytecodeStructure::InstructionParam) {(XInteger) {}});
 }
