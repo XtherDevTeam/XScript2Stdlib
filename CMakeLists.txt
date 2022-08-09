@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.0)
 project(XScript2Stdlib)
 
 set(WHERE_IS_REPO_PATH ${CMAKE_CURRENT_SOURCE_DIR}/XScript2)
-include("./XScript2/Share/Git.cmake")
+include("${CMAKE_CURRENT_SOURCE_DIR}/XScript2/Share/Git.cmake")
 
 set(GIT_COMMIT_HASH "")
 get_git_hash(GIT_COMMIT_HASH)
