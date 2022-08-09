@@ -1,4 +1,5 @@
 #include <iostream>
+#include <climits>
 
 #include "library.h"
 #include "../Share/Utils.hpp"
@@ -251,7 +252,7 @@ void Math_random(XScript::ParamToMethod Param) {
     using namespace XScript;
     auto Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
 
-    XInteger Start = LONG_MAX + 1, End = LONG_MAX;
+    XInteger Start = LONG_MIN, End = LONG_MAX;
     if (Param.ParamsCount == 3) {
         End = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack().Value.IntVal;
         Start = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack().Value.IntVal;
