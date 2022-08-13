@@ -16,6 +16,10 @@ extern "C" XScript::NativeLibraryInformation Initialize() {
     Methods[XScript::Hash(L"endsWith")] = {2, endsWith};
     Methods[XScript::Hash(L"find")] = {2, find};
     Methods[XScript::Hash(L"substr")] = {2, substr};
+    Methods[XScript::Hash(L"toInt")] = {2, toInt};
+    Methods[XScript::Hash(L"toBool")] = {2, toBool};
+    Methods[XScript::Hash(L"toBytes")] = {2, toBytes};
+    Methods[XScript::Hash(L"toDeci")] = {2, toDeci};
     Methods[builtin_hash_code___instruction_add__] = {2, __instruction_add__};
 
     XScript::XMap<XScript::XIndexType, XScript::NativeClassInformation> Classes;
