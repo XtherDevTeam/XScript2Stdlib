@@ -44,5 +44,6 @@ add_library(fs SHARED libfs/library.cpp ${XS2_SRC_FILES} ${SHARE_SRC_FILES})
 add_library(sys SHARED libsys/library.cpp ${XS2_SRC_FILES} ${SHARE_SRC_FILES})
 add_library(math SHARED libmath/library.cpp ${XS2_SRC_FILES} ${SHARE_SRC_FILES})
 add_library(error SHARED liberror/library.cpp ${XS2_SRC_FILES} ${SHARE_SRC_FILES})
+add_library(bytes SHARED libbytes/library.cpp ${XS2_SRC_FILES} ${SHARE_SRC_FILES})
 
 add_definitions(-DXSCRIPT2_COMMIT_VERSION=L\"${GIT_COMMIT_HASH}\")
