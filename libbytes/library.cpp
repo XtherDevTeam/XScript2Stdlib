@@ -200,24 +200,34 @@ void endsWith(XScript::ParamToMethod Param) {
             R = ToCompare.Value.BytesObjectPointer;
             break;
         default:
-            break;
+            throw XScript::BytecodeInterpretError(L"RuntimeError: Expected a string object for rvalue.");
     }
 
-    char *p1 = &L->Dest + L->Length - 1, *p2 = &R->Dest;
-    for (; p1 != &L->Dest - 1 and *p2; --p1, ++p2) {
-        if (*p1 != *p2) {
-            Interpreter->InstructionStackPushBoolean((XScript::BytecodeStructure::InstructionParam) {false});
-            break;
+    if (L->Length < R->Length) {
+        Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
+                {XScript::EnvironmentStackItem::ItemKind::Boolean, (XScript::EnvironmentStackItem::ItemValue) false});
+        Interpreter->InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) (bool) {});
+        return;
+    }
+
+    char *p1 = &L->Dest + L->Length - R->Length, *p2 = &R->Dest;
+    while (*p1 && *p2) {
+        if (*p1 == *p2) {
+            p1++;
+            p2++;
+            continue;
+        } else {
+            Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
+                    {XScript::EnvironmentStackItem::ItemKind::Boolean,
+                     (XScript::EnvironmentStackItem::ItemValue) false});
+            Interpreter->InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) (bool) {});
+            return;
         }
     }
 
-    if (*p2) {
-        Interpreter->InstructionStackPushBoolean((XScript::BytecodeStructure::InstructionParam) {false});
-    } else {
-        Interpreter->InstructionStackPushBoolean((XScript::BytecodeStructure::InstructionParam) {true});
-    }
-
-    Interpreter->InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) {(XScript::XIndexType) {}});
+    Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
+            {XScript::EnvironmentStackItem::ItemKind::Boolean, (XScript::EnvironmentStackItem::ItemValue) true});
+    Interpreter->InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) (bool) {});
 }
 
 void find(XScript::ParamToMethod Param) {

@@ -228,24 +228,34 @@ void endsWith(XScript::ParamToMethod Param) {
             R = ToCompare.Value.StringObjectPointer;
             break;
         default:
-            break;
+            throw XScript::BytecodeInterpretError(L"RuntimeError: Expected a string object for rvalue.");
     }
 
-    XScript::XCharacter *p1 = &L->Dest + L->Length - 1, *p2 = &R->Dest;
-    for (; p1 != &L->Dest - 1 and *p2; --p1, ++p2) {
-        if (*p1 != *p2) {
-            Interpreter->InstructionStackPushBoolean((XScript::BytecodeStructure::InstructionParam) {false});
-            break;
+    if (L->Length < R->Length) {
+        Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
+                {XScript::EnvironmentStackItem::ItemKind::Boolean, (XScript::EnvironmentStackItem::ItemValue) false});
+        Interpreter->InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) (bool) {});
+        return;
+    }
+
+    XScript::XCharacter *p1 = &L->Dest + L->Length - R->Length, *p2 = &R->Dest;
+    while (*p1 && *p2) {
+        if (*p1 == *p2) {
+            p1++;
+            p2++;
+            continue;
+        } else {
+            Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
+                    {XScript::EnvironmentStackItem::ItemKind::Boolean,
+                     (XScript::EnvironmentStackItem::ItemValue) false});
+            Interpreter->InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) (bool) {});
+            return;
         }
     }
 
-    if (*p2) {
-        Interpreter->InstructionStackPushBoolean((XScript::BytecodeStructure::InstructionParam) {false});
-    } else {
-        Interpreter->InstructionStackPushBoolean((XScript::BytecodeStructure::InstructionParam) {true});
-    }
-
-    Interpreter->InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) {(XScript::XIndexType) {}});
+    Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
+            {XScript::EnvironmentStackItem::ItemKind::Boolean, (XScript::EnvironmentStackItem::ItemValue) true});
+    Interpreter->InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) (bool) {});
 }
 
 void find(XScript::ParamToMethod Param) {
@@ -391,7 +401,8 @@ void toInt(XScript::ParamToMethod Param) {
         Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
                 {
                         XScript::EnvironmentStackItem::ItemKind::Integer,
-                        (XScript::EnvironmentStackItem::ItemValue) static_cast<XScript::XInteger>(stol(CovertToXString(L)))
+                        (XScript::EnvironmentStackItem::ItemValue) static_cast<XScript::XInteger>(stol(
+                                CovertToXString(L)))
                 });
         Interpreter->InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) (XScript::XInteger) {});
     } catch (const std::exception &E) {
@@ -415,7 +426,8 @@ void toDeci(XScript::ParamToMethod Param) {
         Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
                 {
                         XScript::EnvironmentStackItem::ItemKind::Decimal,
-                        (XScript::EnvironmentStackItem::ItemValue) static_cast<XScript::XDecimal>(stof(CovertToXString(L)))
+                        (XScript::EnvironmentStackItem::ItemValue) static_cast<XScript::XDecimal>(stof(
+                                CovertToXString(L)))
                 });
         Interpreter->InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) (XScript::XInteger) {});
     } catch (const std::exception &E) {
