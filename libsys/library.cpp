@@ -11,6 +11,8 @@ extern "C" XScript::NativeLibraryInformation Initialize() {
     Methods[XScript::Hash(L"GC")] = {0, System_GC};
     Methods[XScript::Hash(L"clone")] = {0, System_clone};
     Methods[XScript::Hash(L"version")] = {0, System_version};
+    Methods[XScript::Hash(L"sizeOfBuffer")] = {0, System_sizeOfBuffer};
+    Methods[XScript::Hash(L"currentHeapSize")] = {0, System_currentHeapSize};
 
     XScript::XMap<XScript::XIndexType, XScript::NativeClassInformation> Classes;
     Classes[XScript::Hash(L"System")] = {L"System", Methods};
@@ -87,5 +89,41 @@ void System_version(XScript::ParamToMethod Param) {
              (EnvObject::ObjectValue) CreateEnvStringObjectFromXString(CommitVersion)});
     Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
             {EnvironmentStackItem::ItemKind::HeapPointer, (EnvironmentStackItem::ItemValue) Idx});
+    Interpreter->InstructionFuncReturn((BytecodeStructure::InstructionParam) {(XInteger) {}});
+}
+
+void System_sizeOfBuffer(XScript::ParamToMethod Param) {
+    using namespace XScript;
+    auto Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
+
+    auto &Buf = Interpreter->InterpreterEnvironment->Heap.HeapData[
+            Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack().Value.HeapPointerVal];
+    switch (Buf.Kind) {
+        case XScript::EnvObject::ObjectKind::StringObject:
+            Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
+                    {
+                            EnvironmentStackItem::ItemKind::Integer,
+                            (EnvironmentStackItem::ItemValue) Buf.Value.StringObjectPointer->Length});
+            break;
+        case XScript::EnvObject::ObjectKind::BytesObject:
+            Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
+                    {
+                        EnvironmentStackItem::ItemKind::Integer,
+                        (EnvironmentStackItem::ItemValue) Buf.Value.BytesObjectPointer->Length});
+            break;
+        default:
+            throw XScript::BytecodeInterpretError(L"RuntimeError: Expected a buffer");
+    }
+
+    Interpreter->InstructionFuncReturn((BytecodeStructure::InstructionParam) {(XInteger) {}});
+}
+
+void System_currentHeapSize(XScript::ParamToMethod Param) {
+    using namespace XScript;
+    auto Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
+    Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
+            {
+                    EnvironmentStackItem::ItemKind::Integer,
+                    (EnvironmentStackItem::ItemValue) Interpreter->InterpreterEnvironment->Heap.HeapData.size()});
     Interpreter->InstructionFuncReturn((BytecodeStructure::InstructionParam) {(XInteger) {}});
 }
