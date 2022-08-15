@@ -24,7 +24,7 @@ jobs:
         run: cmake -B ${{github.workspace}}/build -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
       - name: Build
-        run: cd ${{github.workspace}}/build ; make -j64
+        run: cd ${{github.workspace}}/build ; make -j16
 
       - name: Remove useless files
         run: cd ${{github.workspace}}/build ; rm -rf CMakeFiles Testing
@@ -48,7 +48,7 @@ jobs:
         run: cmake -B ${{github.workspace}}/build -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
       - name: Build
-        run: cd ${{github.workspace}}/build ; make -j64
+        run: cd ${{github.workspace}}/build ; make -j16
 
       - name: Remove useless files
         run: dir ${{github.workspace}}/build | where {$_. name -notlike '*.dll*'} | Remove-Item -Recurse -force
@@ -72,7 +72,7 @@ jobs:
         run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
       - name: Build
-        run: cd ${{github.workspace}}/build ; make -j64
+        run: cd ${{github.workspace}}/build ; make -j16
 
       - name: Remove useless files
         run: cd ${{github.workspace}}/build ; rm -rf CMakeFiles Testing
