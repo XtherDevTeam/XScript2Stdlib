@@ -43,6 +43,8 @@ void toBool(XScript::ParamToMethod Param);
 
 void toBytes(XScript::ParamToMethod Param);
 
+void length(XScript::ParamToMethod Param);
+
 extern "C" XScript::NativeLibraryInformation Initialize();
 
 #endif //XSCRIPT2STDLIB_LIBRARY_H

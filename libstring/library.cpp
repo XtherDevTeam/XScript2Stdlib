@@ -477,3 +477,13 @@ void toBytes(XScript::ParamToMethod Param) {
             });
     Interpreter->InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) (XScript::XInteger) {});
 }
+
+void length(XScript::ParamToMethod Param) {
+    using XScript::BytecodeInterpreter;
+    auto *Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
+    auto Str =
+            GetStringObject(*Interpreter, Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack());
+    Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
+            {XScript::EnvironmentStackItem::ItemKind::Integer, (XScript::EnvironmentStackItem::ItemValue) Str->Length});
+    Interpreter->InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) (XScript::XInteger) {});
+}

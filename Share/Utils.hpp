@@ -18,4 +18,6 @@ XScript::XHeapIndexType CloneObject(XScript::BytecodeInterpreter *Interpreter, X
 
 XScript::EnvStringObject *GetStringObject(XScript::BytecodeInterpreter &Interpreter, const XScript::EnvironmentStackItem &Item);
 
+XScript::EnvBytesObject * GetBytesObject(XScript::BytecodeInterpreter &Interpreter, const XScript::EnvironmentStackItem &Item);
+
 #endif //XSCRIPT2STDLIB_UTILS_HPP

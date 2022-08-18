@@ -98,3 +98,20 @@ XScript::XHeapIndexType CloneObject(XScript::BytecodeInterpreter *Interpreter, X
             return Interpreter->InterpreterEnvironment->Heap.PushElement(I);
     }
 }
+
+XScript::EnvBytesObject *
+GetBytesObject(XScript::BytecodeInterpreter &Interpreter, const XScript::EnvironmentStackItem &Item) {
+    if (Item.Kind == XScript::EnvironmentStackItem::ItemKind::HeapPointer) {
+        auto &First = Interpreter.InterpreterEnvironment->Heap.HeapData[Item.Value.HeapPointerVal];
+        switch (First.Kind) {
+            case XScript::EnvObject::ObjectKind::StringObject:
+                return First.Value.BytesObjectPointer;
+            case XScript::EnvObject::ObjectKind::ClassObject:
+                return Interpreter.InterpreterEnvironment->Heap.HeapData[First.Value.ClassObjectPointer->Members[XScript::Hash(
+                        L"__buffer__")]].Value.BytesObjectPointer;
+            default:
+                return nullptr;
+        }
+    }
+    return nullptr;
+}
