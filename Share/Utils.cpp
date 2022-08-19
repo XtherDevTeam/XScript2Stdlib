@@ -2,6 +2,7 @@
 // Created by Jerry Chou on 2022/8/6.
 //
 
+#include <cmath>
 #include "Utils.hpp"
 
 XScript::EnvClassObject *

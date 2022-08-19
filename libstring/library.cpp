@@ -1,8 +1,63 @@
 #include <iostream>
 #include <climits>
+#include <bitset>
 
 #include "library.h"
 #include "../Share/Utils.hpp"
+
+
+FormatterTagInfo::FormatterTagInfo() : Kind(TagKind::Str), Base(TagBS::Dec), Precision(6) {
+
+}
+
+XScript::XCharacter *FormatterTagInfo::Parse(XScript::XCharacter *Str) {
+    XScript::XString A;
+    XScript::XString B;
+
+    while (*Str != ' ') if (*Str == L'\0') { return nullptr; } else A += *(Str++);
+    if (A == L"str") {
+        Kind = TagKind::Str;
+    } else if (A == L"int") {
+        Kind = TagKind::Int;
+    } else if (A == L"deci") {
+        Kind = TagKind::Deci;
+    } else if (A == L"bool") {
+        Kind = TagKind::Bool;
+    } else if (A == L"dol") {
+        Kind = TagKind::Dol;
+    } else {
+        return nullptr;
+    }
+    if (Kind == TagKind::Int || Kind == TagKind::Deci) {
+        A = L"";
+        Str++;
+        while (*Str != L'=') if (*Str == L'\0') { return nullptr; } else A += *(Str++);
+
+        while (*Str != L'}') if (*Str == L'\0') { return nullptr; } else B += *(Str++);
+
+        if (A == L"bs") {
+            if (B == L"hex")
+                Base = TagBS::Hex;
+            else if (B == L"dec")
+                Base = TagBS::Dec;
+            else if (B == L"oct")
+                Base = TagBS::Oct;
+            else if (B == L"bin")
+                Base = TagBS::Bin;
+            else
+                return nullptr;
+        } else if (A == L"pre") {
+            try {
+                Precision = std::stol(B);
+            } catch (...) {
+                return nullptr;
+            }
+        } else {
+            return nullptr;
+        }
+    }
+    return Str;
+}
 
 
 extern "C" XScript::NativeLibraryInformation Initialize() {
@@ -20,6 +75,7 @@ extern "C" XScript::NativeLibraryInformation Initialize() {
     Methods[XScript::Hash(L"toBool")] = {2, toBool};
     Methods[XScript::Hash(L"toBytes")] = {2, toBytes};
     Methods[XScript::Hash(L"toDeci")] = {2, toDeci};
+    Methods[XScript::Hash(L"formatter")] = {2, formatter};
     Methods[builtin_hash_code___instruction_add__] = {2, __instruction_add__};
 
     XScript::XMap<XScript::XIndexType, XScript::NativeClassInformation> Classes;
@@ -183,7 +239,7 @@ void startsWith(XScript::ParamToMethod Param) {
             R = ToCompare.Value.StringObjectPointer;
             break;
         default:
-            break;
+            throw XScript::BytecodeInterpretError(L"LibString: Expected a string object");
     }
 
     XScript::XCharacter *p1 = &L->Dest, *p2 = &R->Dest;
@@ -279,7 +335,7 @@ void find(XScript::ParamToMethod Param) {
             R = ToCompare.Value.StringObjectPointer;
             break;
         default:
-            break;
+            throw XScript::BytecodeInterpretError(L"LibString: Expected a string object");
     }
 
     XScript::XInteger Res = static_cast<XScript::XInteger>((XScript::XString) {&L->Dest}.find(&R->Dest, Start));
@@ -352,7 +408,7 @@ void __instruction_add__(XScript::ParamToMethod Param) {
             R = ToCompare.Value.StringObjectPointer;
             break;
         default:
-            break;
+            throw XScript::BytecodeInterpretError(L"LibString: Expected a string object");
     }
 
     auto Str = CloneStringObject(Interpreter);
@@ -468,8 +524,111 @@ void length(XScript::ParamToMethod Param) {
     using XScript::BytecodeInterpreter;
     auto *Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
     auto Str =
-            GetStringObject(*Interpreter, Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack());
+            GetStringObject(*Interpreter,
+                            Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack());
     Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
             {XScript::EnvironmentStackItem::ItemKind::Integer, (XScript::EnvironmentStackItem::ItemValue) Str->Length});
+    Interpreter->InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) (XScript::XInteger) {});
+}
+
+void formatter(XScript::ParamToMethod Param) {
+    using XScript::BytecodeInterpreter;
+    auto *Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
+
+    XScript::XIndexType Cur =
+            Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.FramesInformation.back().From + 1;
+    XScript::XString Res;
+    auto Format =
+            GetStringObject(*Interpreter,
+                            Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack());
+
+    FormatterTagInfo CurTag;
+    for (XScript::XCharacter *Ch = &Format->Dest; Ch < &Format->Dest + Format->Length; Ch++) {
+        if (*Ch == L'$' && *(Ch + 1) == L'{') {
+            Ch += 2;
+            if (Ch < &Format->Dest + Format->Length) {
+                CurTag = {};
+                Ch = CurTag.Parse(Ch);
+
+                if (Ch) {
+                    switch (CurTag.Kind) {
+                        case FormatterTagInfo::TagKind::Str: {
+                            Res += &GetStringObject(*Interpreter,
+                                                    Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.GetValueFromStack(
+                                                            Cur++))->Dest;
+                            break;
+                        }
+                        case FormatterTagInfo::TagKind::Int: {
+                            std::wstringstream ss;
+                            switch (CurTag.Base) {
+                                case FormatterTagInfo::TagBS::Hex:
+                                    ss << std::hex
+                                       << Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.GetValueFromStack(
+                                               Cur++).Value.IntVal;
+                                    break;
+                                case FormatterTagInfo::TagBS::Dec:
+                                    ss << std::dec
+                                       << Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.GetValueFromStack(
+                                               Cur++).Value.IntVal;
+                                    break;
+                                case FormatterTagInfo::TagBS::Oct:
+                                    ss << std::oct
+                                       << Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.GetValueFromStack(
+                                               Cur++).Value.IntVal;
+                                    break;
+                                case FormatterTagInfo::TagBS::Bin:
+                                    ss << std::dec << std::bitset<8>(
+                                            Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.GetValueFromStack(
+                                                    Cur++).Value.IntVal);
+                                    break;
+                            }
+                            Res += ss.str();
+                            break;
+                        }
+                        case FormatterTagInfo::TagKind::Deci: {
+                            std::wstringstream ss;
+                            ss << std::setprecision(static_cast<int>(CurTag.Precision))
+                               << Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.GetValueFromStack(
+                                       Cur++).Value.DeciVal;
+                            Res += ss.str();
+                            break;
+                        }
+                        case FormatterTagInfo::TagKind::Bool: {
+                            Res += Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.GetValueFromStack(
+                                    Cur++).Value.BoolVal ? L"True" : L"False";
+                            break;
+                        }
+                        case FormatterTagInfo::TagKind::Dol: {
+                            Res += L"$";
+                            break;
+                        }
+                    }
+                    if (*Ch != L'}') {
+                        PushClassObjectStructure(Interpreter,
+                                                 ConstructInternalErrorStructure(Interpreter, L"ParseError",
+                                                                                 L"Expected a `}`"));
+                        Interpreter->InstructionFuncReturn(
+                                (XScript::BytecodeStructure::InstructionParam) (XScript::XInteger) {});
+                        return;
+                    }
+                } else {
+                    PushClassObjectStructure(Interpreter, ConstructInternalErrorStructure(Interpreter, L"ParseError",
+                                                                                          L"Expected a correct tag"));
+                    Interpreter->InstructionFuncReturn(
+                            (XScript::BytecodeStructure::InstructionParam) (XScript::XInteger) {});
+                    return;
+                }
+            }
+        } else {
+            Res += *Ch;
+        }
+    }
+
+    auto Str = CloneStringObject(Interpreter);
+    Str->Members[builtin_hashcode___buffer__] = Interpreter->InterpreterEnvironment->Heap.PushElement(
+            {
+                    XScript::EnvObject::ObjectKind::StringObject,
+                    (XScript::EnvObject::ObjectValue) XScript::CreateEnvStringObjectFromXString(Res)});
+    PushClassObjectStructure(Interpreter, Str);
     Interpreter->InstructionFuncReturn((XScript::BytecodeStructure::InstructionParam) (XScript::XInteger) {});
 }

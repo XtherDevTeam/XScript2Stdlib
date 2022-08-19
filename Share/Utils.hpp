@@ -20,6 +20,8 @@ XScript::EnvStringObject *GetStringObject(XScript::BytecodeInterpreter &Interpre
 
 XScript::EnvBytesObject * GetBytesObject(XScript::BytecodeInterpreter &Interpreter, const XScript::EnvironmentStackItem &Item);
 
+XScript::XString deci2bin(XScript::XDecimal Dec);
+
 #define builtin_hashcode___buffer__ (XScript::XIndexType)17751072636344391196
 
 #endif //XSCRIPT2STDLIB_UTILS_HPP

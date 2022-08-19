@@ -7,6 +7,27 @@
 
 // 非 export 部分
 
+struct FormatterTagInfo {
+    enum class TagKind : XScript::XInteger {
+        Str,
+        Int,
+        Deci,
+        Bool,
+        Dol
+    } Kind;
+    enum class TagBS : XScript::XInteger {
+        Hex = 16,
+        Dec = 10,
+        Oct = 8,
+        Bin = 2
+    } Base;
+    XScript::XInteger Precision;
+
+    FormatterTagInfo();
+
+    XScript::XCharacter * Parse(XScript::XCharacter *Str);
+};
+
 /**
  * 从Stack上的`this`指针克隆一个String对象 用于生成对象
  * @param Env VM环境
@@ -44,6 +65,8 @@ void toBool(XScript::ParamToMethod Param);
 void toBytes(XScript::ParamToMethod Param);
 
 void length(XScript::ParamToMethod Param);
+
+void formatter(XScript::ParamToMethod Param);
 
 extern "C" XScript::NativeLibraryInformation Initialize();
 
