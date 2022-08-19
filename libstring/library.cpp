@@ -14,7 +14,7 @@ XScript::XCharacter *FormatterTagInfo::Parse(XScript::XCharacter *Str) {
     XScript::XString A;
     XScript::XString B;
 
-    while (*Str != ' ') if (*Str == L'\0') { return nullptr; } else A += *(Str++);
+    while (XScript::IsAlpha(*Str)) if (*Str == L'\0') { return nullptr; } else A += *(Str++);
     if (A == L"str") {
         Kind = TagKind::Str;
     } else if (A == L"int") {
@@ -31,9 +31,10 @@ XScript::XCharacter *FormatterTagInfo::Parse(XScript::XCharacter *Str) {
     if (Kind == TagKind::Int || Kind == TagKind::Deci) {
         A = L"";
         Str++;
-        while (*Str != L'=') if (*Str == L'\0') { return nullptr; } else A += *(Str++);
+        while (XScript::IsAlpha(*Str)) if (*Str == L'\0') { return nullptr; } else A += *(Str++);
 
-        while (*Str != L'}') if (*Str == L'\0') { return nullptr; } else B += *(Str++);
+        Str++;
+        while (XScript::IsAlpha(*Str) or XScript::IsDigit(*Str)) if (*Str == L'\0') { return nullptr; } else B += *(Str++);
 
         if (A == L"bs") {
             if (B == L"hex")
