@@ -540,7 +540,7 @@ void formatter(XScript::ParamToMethod Param) {
     XScript::XString Res;
     auto Format =
             GetStringObject(*Interpreter,
-                            Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack());
+                            Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.GetValueFromStack(Cur - 1));
 
     FormatterTagInfo CurTag;
     for (XScript::XCharacter *Ch = &Format->Dest; Ch < &Format->Dest + Format->Length; Ch++) {
