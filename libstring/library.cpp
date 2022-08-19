@@ -52,7 +52,7 @@ void fromBuffer(XScript::ParamToMethod Param) {
 
     XScript::EnvClassObject *Object = CloneStringObject(Interpreter);
 
-    Object->Members[XScript::Hash(L"__buffer__")] = Item.Value.HeapPointerVal;
+    Object->Members[builtin_hashcode___buffer__] = Item.Value.HeapPointerVal;
     Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
             {XScript::EnvironmentStackItem::ItemKind::HeapPointer, (XScript::EnvironmentStackItem::ItemValue) {
                     Interpreter->InterpreterEnvironment->Heap.PushElement(
@@ -73,7 +73,7 @@ void fromBytes(XScript::ParamToMethod Param) {
 
     XScript::EnvClassObject *Object = CloneStringObject(Interpreter);
 
-    Object->Members[XScript::Hash(L"__buffer__")] = Interpreter->InterpreterEnvironment->Heap.PushElement(
+    Object->Members[builtin_hashcode___buffer__] = Interpreter->InterpreterEnvironment->Heap.PushElement(
             {XScript::EnvObject::ObjectKind::StringObject,
              (XScript::EnvObject::ObjectValue) XScript::CreateEnvStringObjectFromXString(XScript::string2wstring(
                      CovertToXBytes(
@@ -98,7 +98,7 @@ void fromInt(XScript::ParamToMethod Param) {
     XScript::EnvironmentStackItem Item = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack();
     XScript::EnvClassObject *Object = CloneStringObject(Interpreter);
 
-    Object->Members[XScript::Hash(L"__buffer__")] =
+    Object->Members[builtin_hashcode___buffer__] =
             Interpreter->InterpreterEnvironment->Heap.PushElement(
                     (XScript::EnvObject) {XScript::EnvObject::ObjectKind::StringObject,
                                           (XScript::EnvObject::ObjectValue) {XScript::CreateEnvStringObjectFromXString(
@@ -122,7 +122,7 @@ void fromDeci(XScript::ParamToMethod Param) {
     XScript::EnvironmentStackItem Item = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack();
     XScript::EnvClassObject *Object = CloneStringObject(Interpreter);
 
-    Object->Members[XScript::Hash(L"__buffer__")] =
+    Object->Members[builtin_hashcode___buffer__] =
             Interpreter->InterpreterEnvironment->Heap.PushElement(
                     (XScript::EnvObject) {XScript::EnvObject::ObjectKind::StringObject,
                                           (XScript::EnvObject::ObjectValue) {XScript::CreateEnvStringObjectFromXString(
@@ -145,7 +145,7 @@ void fromBool(XScript::ParamToMethod Param) {
     XScript::EnvironmentStackItem Item = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack();
     XScript::EnvClassObject *Object = CloneStringObject(Interpreter);
 
-    Object->Members[XScript::Hash(L"__buffer__")] =
+    Object->Members[builtin_hashcode___buffer__] =
             Interpreter->InterpreterEnvironment->Heap.PushElement(
                     (XScript::EnvObject) {XScript::EnvObject::ObjectKind::StringObject,
                                           (XScript::EnvObject::ObjectValue) {XScript::CreateEnvStringObjectFromXString(
@@ -169,8 +169,7 @@ void startsWith(XScript::ParamToMethod Param) {
     XScript::EnvironmentStackItem Left = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.Elements[Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.FramesInformation.back().From];
 
     XScript::EnvStringObject *L =
-            Interpreter->InterpreterEnvironment->Heap.HeapData[Interpreter->InterpreterEnvironment->Heap.HeapData[Left.Value.HeapPointerVal].Value.ClassObjectPointer->Members[XScript::Hash(
-                    L"__buffer__")]].Value.StringObjectPointer;
+            Interpreter->InterpreterEnvironment->Heap.HeapData[Interpreter->InterpreterEnvironment->Heap.HeapData[Left.Value.HeapPointerVal].Value.ClassObjectPointer->Members[builtin_hashcode___buffer__]].Value.StringObjectPointer;
     XScript::EnvObject &ToCompare =
             Interpreter->InterpreterEnvironment->Heap.HeapData[Right.Value.HeapPointerVal];
 
@@ -178,8 +177,7 @@ void startsWith(XScript::ParamToMethod Param) {
 
     switch (ToCompare.Kind) {
         case XScript::EnvObject::ObjectKind::ClassObject:
-            R = Interpreter->InterpreterEnvironment->Heap.HeapData[ToCompare.Value.ClassObjectPointer->Members[XScript::Hash(
-                    L"__buffer__")]].Value.StringObjectPointer;
+            R = Interpreter->InterpreterEnvironment->Heap.HeapData[ToCompare.Value.ClassObjectPointer->Members[builtin_hashcode___buffer__]].Value.StringObjectPointer;
             break;
         case XScript::EnvObject::ObjectKind::StringObject:
             R = ToCompare.Value.StringObjectPointer;
@@ -212,8 +210,7 @@ void endsWith(XScript::ParamToMethod Param) {
     XScript::EnvironmentStackItem Right = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack();
     XScript::EnvironmentStackItem Left = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.Elements[Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.FramesInformation.back().From];
     XScript::EnvStringObject *L =
-            Interpreter->InterpreterEnvironment->Heap.HeapData[Interpreter->InterpreterEnvironment->Heap.HeapData[Left.Value.HeapPointerVal].Value.ClassObjectPointer->Members[XScript::Hash(
-                    L"__buffer__")]].Value.StringObjectPointer;
+            Interpreter->InterpreterEnvironment->Heap.HeapData[Interpreter->InterpreterEnvironment->Heap.HeapData[Left.Value.HeapPointerVal].Value.ClassObjectPointer->Members[builtin_hashcode___buffer__]].Value.StringObjectPointer;
     XScript::EnvObject &ToCompare =
             Interpreter->InterpreterEnvironment->Heap.HeapData[Right.Value.HeapPointerVal];
 
@@ -221,8 +218,7 @@ void endsWith(XScript::ParamToMethod Param) {
 
     switch (ToCompare.Kind) {
         case XScript::EnvObject::ObjectKind::ClassObject:
-            R = Interpreter->InterpreterEnvironment->Heap.HeapData[ToCompare.Value.ClassObjectPointer->Members[XScript::Hash(
-                    L"__buffer__")]].Value.StringObjectPointer;
+            R = Interpreter->InterpreterEnvironment->Heap.HeapData[ToCompare.Value.ClassObjectPointer->Members[builtin_hashcode___buffer__]].Value.StringObjectPointer;
             break;
         case XScript::EnvObject::ObjectKind::StringObject:
             R = ToCompare.Value.StringObjectPointer;
@@ -269,8 +265,7 @@ void find(XScript::ParamToMethod Param) {
     }
     XScript::EnvironmentStackItem Left = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.Elements[Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.FramesInformation.back().From];
     XScript::EnvStringObject *L =
-            Interpreter->InterpreterEnvironment->Heap.HeapData[Interpreter->InterpreterEnvironment->Heap.HeapData[Left.Value.HeapPointerVal].Value.ClassObjectPointer->Members[XScript::Hash(
-                    L"__buffer__")]].Value.StringObjectPointer;
+            Interpreter->InterpreterEnvironment->Heap.HeapData[Interpreter->InterpreterEnvironment->Heap.HeapData[Left.Value.HeapPointerVal].Value.ClassObjectPointer->Members[builtin_hashcode___buffer__]].Value.StringObjectPointer;
     XScript::EnvObject &ToCompare =
             Interpreter->InterpreterEnvironment->Heap.HeapData[Right.Value.HeapPointerVal];
 
@@ -278,8 +273,7 @@ void find(XScript::ParamToMethod Param) {
 
     switch (ToCompare.Kind) {
         case XScript::EnvObject::ObjectKind::ClassObject:
-            R = Interpreter->InterpreterEnvironment->Heap.HeapData[ToCompare.Value.ClassObjectPointer->Members[XScript::Hash(
-                    L"__buffer__")]].Value.StringObjectPointer;
+            R = Interpreter->InterpreterEnvironment->Heap.HeapData[ToCompare.Value.ClassObjectPointer->Members[builtin_hashcode___buffer__]].Value.StringObjectPointer;
             break;
         case XScript::EnvObject::ObjectKind::StringObject:
             R = ToCompare.Value.StringObjectPointer;
@@ -309,8 +303,7 @@ void substr(XScript::ParamToMethod Param) {
 
     XScript::EnvironmentStackItem Left = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.Elements[Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.FramesInformation.back().From];
     XScript::EnvStringObject *L =
-            Interpreter->InterpreterEnvironment->Heap.HeapData[Interpreter->InterpreterEnvironment->Heap.HeapData[Left.Value.HeapPointerVal].Value.ClassObjectPointer->Members[XScript::Hash(
-                    L"__buffer__")]].Value.StringObjectPointer;
+            Interpreter->InterpreterEnvironment->Heap.HeapData[Interpreter->InterpreterEnvironment->Heap.HeapData[Left.Value.HeapPointerVal].Value.ClassObjectPointer->Members[builtin_hashcode___buffer__]].Value.StringObjectPointer;
 
     End = End == INT_MAX ? L->Length : Start + End;
 
@@ -321,8 +314,7 @@ void substr(XScript::ParamToMethod Param) {
 
     XScript::EnvClassObject *Result = XScript::NewEnvClassObject();
     *Result = *Interpreter->InterpreterEnvironment->Heap.HeapData[Left.Value.HeapPointerVal].Value.ClassObjectPointer;
-    Result->Members[XScript::Hash(
-            L"__buffer__")] = Interpreter->InterpreterEnvironment->Heap.PushElement(
+    Result->Members[builtin_hashcode___buffer__] = Interpreter->InterpreterEnvironment->Heap.PushElement(
             {XScript::EnvObject::ObjectKind::StringObject,
              (XScript::EnvObject::ObjectValue) {XScript::CreateEnvStringObjectFromXString(Got)}});
 
@@ -346,8 +338,7 @@ void __instruction_add__(XScript::ParamToMethod Param) {
     XScript::EnvironmentStackItem Right = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack();
     XScript::EnvironmentStackItem Left = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.Elements[Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.FramesInformation.back().From];
     XScript::EnvStringObject *L =
-            Interpreter->InterpreterEnvironment->Heap.HeapData[Interpreter->InterpreterEnvironment->Heap.HeapData[Left.Value.HeapPointerVal].Value.ClassObjectPointer->Members[XScript::Hash(
-                    L"__buffer__")]].Value.StringObjectPointer;
+            Interpreter->InterpreterEnvironment->Heap.HeapData[Interpreter->InterpreterEnvironment->Heap.HeapData[Left.Value.HeapPointerVal].Value.ClassObjectPointer->Members[builtin_hashcode___buffer__]].Value.StringObjectPointer;
 
     XScript::EnvObject &ToCompare =
             Interpreter->InterpreterEnvironment->Heap.HeapData[Right.Value.HeapPointerVal];
@@ -355,8 +346,7 @@ void __instruction_add__(XScript::ParamToMethod Param) {
 
     switch (ToCompare.Kind) {
         case XScript::EnvObject::ObjectKind::ClassObject:
-            R = Interpreter->InterpreterEnvironment->Heap.HeapData[ToCompare.Value.ClassObjectPointer->Members[XScript::Hash(
-                    L"__buffer__")]].Value.StringObjectPointer;
+            R = Interpreter->InterpreterEnvironment->Heap.HeapData[ToCompare.Value.ClassObjectPointer->Members[builtin_hashcode___buffer__]].Value.StringObjectPointer;
             break;
         case XScript::EnvObject::ObjectKind::StringObject:
             R = ToCompare.Value.StringObjectPointer;
@@ -366,7 +356,7 @@ void __instruction_add__(XScript::ParamToMethod Param) {
     }
 
     auto Str = CloneStringObject(Interpreter);
-    Str->Members[XScript::Hash(L"__buffer__")] = Interpreter->InterpreterEnvironment->Heap.PushElement(
+    Str->Members[builtin_hashcode___buffer__] = Interpreter->InterpreterEnvironment->Heap.PushElement(
             {
                     XScript::EnvObject::ObjectKind::StringObject,
                     (XScript::EnvObject::ObjectValue) XScript::MergeEnvStringObject(
@@ -394,8 +384,7 @@ void toInt(XScript::ParamToMethod Param) {
 
     XScript::EnvironmentStackItem Left = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.Elements[Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.FramesInformation.back().From];
     XScript::EnvStringObject *L =
-            Interpreter->InterpreterEnvironment->Heap.HeapData[Interpreter->InterpreterEnvironment->Heap.HeapData[Left.Value.HeapPointerVal].Value.ClassObjectPointer->Members[XScript::Hash(
-                    L"__buffer__")]].Value.StringObjectPointer;
+            Interpreter->InterpreterEnvironment->Heap.HeapData[Interpreter->InterpreterEnvironment->Heap.HeapData[Left.Value.HeapPointerVal].Value.ClassObjectPointer->Members[builtin_hashcode___buffer__]].Value.StringObjectPointer;
 
     try {
         Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
@@ -419,8 +408,7 @@ void toDeci(XScript::ParamToMethod Param) {
 
     XScript::EnvironmentStackItem Left = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.Elements[Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.FramesInformation.back().From];
     XScript::EnvStringObject *L =
-            Interpreter->InterpreterEnvironment->Heap.HeapData[Interpreter->InterpreterEnvironment->Heap.HeapData[Left.Value.HeapPointerVal].Value.ClassObjectPointer->Members[XScript::Hash(
-                    L"__buffer__")]].Value.StringObjectPointer;
+            Interpreter->InterpreterEnvironment->Heap.HeapData[Interpreter->InterpreterEnvironment->Heap.HeapData[Left.Value.HeapPointerVal].Value.ClassObjectPointer->Members[builtin_hashcode___buffer__]].Value.StringObjectPointer;
 
     try {
         Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
@@ -444,8 +432,7 @@ void toBool(XScript::ParamToMethod Param) {
 
     XScript::EnvironmentStackItem Left = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.Elements[Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.FramesInformation.back().From];
     XScript::EnvStringObject *L =
-            Interpreter->InterpreterEnvironment->Heap.HeapData[Interpreter->InterpreterEnvironment->Heap.HeapData[Left.Value.HeapPointerVal].Value.ClassObjectPointer->Members[XScript::Hash(
-                    L"__buffer__")]].Value.StringObjectPointer;
+            Interpreter->InterpreterEnvironment->Heap.HeapData[Interpreter->InterpreterEnvironment->Heap.HeapData[Left.Value.HeapPointerVal].Value.ClassObjectPointer->Members[builtin_hashcode___buffer__]].Value.StringObjectPointer;
 
     Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
             {
@@ -461,8 +448,7 @@ void toBytes(XScript::ParamToMethod Param) {
 
     XScript::EnvironmentStackItem Left = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.Elements[Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.FramesInformation.back().From];
     XScript::EnvStringObject *L =
-            Interpreter->InterpreterEnvironment->Heap.HeapData[Interpreter->InterpreterEnvironment->Heap.HeapData[Left.Value.HeapPointerVal].Value.ClassObjectPointer->Members[XScript::Hash(
-                    L"__buffer__")]].Value.StringObjectPointer;
+            Interpreter->InterpreterEnvironment->Heap.HeapData[Interpreter->InterpreterEnvironment->Heap.HeapData[Left.Value.HeapPointerVal].Value.ClassObjectPointer->Members[builtin_hashcode___buffer__]].Value.StringObjectPointer;
 
     XScript::XHeapIndexType IndexOfBytes = Interpreter->InterpreterEnvironment->Heap.PushElement(
             {

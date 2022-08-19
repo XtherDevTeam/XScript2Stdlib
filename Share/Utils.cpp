@@ -33,8 +33,7 @@ GetStringObject(XScript::BytecodeInterpreter &Interpreter, const XScript::Enviro
             case XScript::EnvObject::ObjectKind::StringObject:
                 return First.Value.StringObjectPointer;
             case XScript::EnvObject::ObjectKind::ClassObject:
-                return Interpreter.InterpreterEnvironment->Heap.HeapData[First.Value.ClassObjectPointer->Members[XScript::Hash(
-                        L"__buffer__")]].Value.StringObjectPointer;
+                return Interpreter.InterpreterEnvironment->Heap.HeapData[First.Value.ClassObjectPointer->Members[builtin_hashcode___buffer__]].Value.StringObjectPointer;
             default:
                 return nullptr;
         }
@@ -107,8 +106,7 @@ GetBytesObject(XScript::BytecodeInterpreter &Interpreter, const XScript::Environ
             case XScript::EnvObject::ObjectKind::StringObject:
                 return First.Value.BytesObjectPointer;
             case XScript::EnvObject::ObjectKind::ClassObject:
-                return Interpreter.InterpreterEnvironment->Heap.HeapData[First.Value.ClassObjectPointer->Members[XScript::Hash(
-                        L"__buffer__")]].Value.BytesObjectPointer;
+                return Interpreter.InterpreterEnvironment->Heap.HeapData[First.Value.ClassObjectPointer->Members[builtin_hashcode___buffer__]].Value.BytesObjectPointer;
             default:
                 return nullptr;
         }

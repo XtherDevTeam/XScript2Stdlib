@@ -1,6 +1,7 @@
 #include <iostream>
 #include <thread>
 
+#include "../Share/Utils.hpp"
 #include "library.h"
 
 extern "C" XScript::NativeLibraryInformation Initialize() {
@@ -30,7 +31,7 @@ XScript::EnvClassObject *CloneArrayObject(XScript::BytecodeInterpreter *Interpre
             ].Value.HeapPointerVal].Value.ClassObjectPointer;
     XScript::EnvClassObject *New = XScript::NewEnvClassObject();
     *New = XScript::EnvClassObject{*This};
-    New->Members[XScript::Hash(L"__buffer__")] = {Interpreter->InterpreterEnvironment->Heap.PushElement(
+    New->Members[builtin_hashcode___buffer__] = {Interpreter->InterpreterEnvironment->Heap.PushElement(
             {XScript::EnvObject::ObjectKind::ArrayObject,
              (XScript::EnvObject::ObjectValue) {
                      XScript::NewEnvArrayObject(0)}})};
@@ -43,7 +44,7 @@ void fromBuffer(XScript::ParamToMethod Param) {
     XScript::EnvironmentStackItem Item = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack();
     XScript::EnvClassObject *Object = CloneArrayObject(Interpreter);
 
-    Object->Members[XScript::Hash(L"__buffer__")] = Item.Value.HeapPointerVal;
+    Object->Members[builtin_hashcode___buffer__] = Item.Value.HeapPointerVal;
     Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
             {XScript::EnvironmentStackItem::ItemKind::HeapPointer, (XScript::EnvironmentStackItem::ItemValue) {
                     Interpreter->InterpreterEnvironment->Heap.PushElement(
@@ -63,8 +64,7 @@ void push_back(XScript::ParamToMethod Param) {
                     Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.FramesInformation.back().From
             ].Value.HeapPointerVal].Value.ClassObjectPointer;
     auto *Array =
-            Interpreter->InterpreterEnvironment->Heap.HeapData[Object->Members[XScript::Hash(
-                    L"__buffer__")]].Value.ArrayObjectPointer;
+            Interpreter->InterpreterEnvironment->Heap.HeapData[Object->Members[builtin_hashcode___buffer__]].Value.ArrayObjectPointer;
 
     XScript::EnvironmentStackItem ToPush = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack();
     XScript::XHeapIndexType Idx;
@@ -108,8 +108,7 @@ void pop_back(XScript::ParamToMethod Param) {
             ].Value.HeapPointerVal].Value.ClassObjectPointer;
 
     auto *Array =
-            Interpreter->InterpreterEnvironment->Heap.HeapData[Object->Members[XScript::Hash(
-                    L"__buffer__")]].Value.ArrayObjectPointer;
+            Interpreter->InterpreterEnvironment->Heap.HeapData[Object->Members[builtin_hashcode___buffer__]].Value.ArrayObjectPointer;
 
     Array->Elements.pop_back();
 
@@ -126,8 +125,7 @@ void __instruction_indexOf__(XScript::ParamToMethod Param) {
             ].Value.HeapPointerVal].Value.ClassObjectPointer;
 
     auto *Array =
-            Interpreter->InterpreterEnvironment->Heap.HeapData[Object->Members[XScript::Hash(
-                    L"__buffer__")]].Value.ArrayObjectPointer;
+            Interpreter->InterpreterEnvironment->Heap.HeapData[Object->Members[builtin_hashcode___buffer__]].Value.ArrayObjectPointer;
     XScript::XInteger Index = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack().Value.IntVal;
 
     Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
@@ -148,8 +146,7 @@ void removeIndex(XScript::ParamToMethod Param) {
             ].Value.HeapPointerVal].Value.ClassObjectPointer;
 
     auto *Array =
-            Interpreter->InterpreterEnvironment->Heap.HeapData[Object->Members[XScript::Hash(
-                    L"__buffer__")]].Value.ArrayObjectPointer;
+            Interpreter->InterpreterEnvironment->Heap.HeapData[Object->Members[builtin_hashcode___buffer__]].Value.ArrayObjectPointer;
 
     XScript::XInteger Index = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack().Value.IntVal;
     Array->Elements.erase(Array->Elements.begin() + Index);
@@ -169,8 +166,7 @@ void resize(XScript::ParamToMethod Param) {
             ].Value.HeapPointerVal].Value.ClassObjectPointer;
 
     auto *Array =
-            Interpreter->InterpreterEnvironment->Heap.HeapData[Object->Members[XScript::Hash(
-                    L"__buffer__")]].Value.ArrayObjectPointer;
+            Interpreter->InterpreterEnvironment->Heap.HeapData[Object->Members[builtin_hashcode___buffer__]].Value.ArrayObjectPointer;
 
     XScript::XInteger Index = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack().Value.IntVal;
     Array->Elements.resize(Index);
@@ -190,8 +186,7 @@ void create(XScript::ParamToMethod Param) {
 
     XScript::EnvClassObject *Obj = CloneArrayObject(Interpreter);
     auto *Array =
-            Interpreter->InterpreterEnvironment->Heap.HeapData[Obj->Members[XScript::Hash(
-                    L"__buffer__")]].Value.ArrayObjectPointer;
+            Interpreter->InterpreterEnvironment->Heap.HeapData[Obj->Members[builtin_hashcode___buffer__]].Value.ArrayObjectPointer;
     Array->Elements = {};
     XScript::XHeapIndexType Idx = Interpreter->InterpreterEnvironment->Heap.PushElement({
                                                                                                 XScript::EnvObject::ObjectKind::ClassObject,
@@ -216,8 +211,7 @@ void length(XScript::ParamToMethod Param) {
             ].Value.HeapPointerVal].Value.ClassObjectPointer;
 
     auto *Array =
-            Interpreter->InterpreterEnvironment->Heap.HeapData[Object->Members[XScript::Hash(
-                    L"__buffer__")]].Value.ArrayObjectPointer;
+            Interpreter->InterpreterEnvironment->Heap.HeapData[Object->Members[builtin_hashcode___buffer__]].Value.ArrayObjectPointer;
     Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
             (XScript::EnvironmentStackItem) {
                     XScript::EnvironmentStackItem::ItemKind::Integer,

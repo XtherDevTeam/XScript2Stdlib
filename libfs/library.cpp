@@ -218,12 +218,10 @@ void File_write(XScript::ParamToMethod Param) {
 
     switch (ToWrite.Kind) {
         case XScript::EnvObject::ObjectKind::ClassObject: {
-            if (ToWrite.Value.ClassObjectPointer->Members.count(Hash(L"__buffer__"))) {
+            if (ToWrite.Value.ClassObjectPointer->Members.count(builtin_hashcode___buffer__)) {
                 Res = fwrite(wstring2string(CovertToXString(
-                                     Interpreter->InterpreterEnvironment->Heap.HeapData[ToWrite.Value.ClassObjectPointer->Members[Hash(
-                                             L"__buffer__")]].Value.StringObjectPointer)).c_str(),
-                             Interpreter->InterpreterEnvironment->Heap.HeapData[ToWrite.Value.ClassObjectPointer->Members[Hash(
-                                     L"__buffer__")]].Value.StringObjectPointer->Length,
+                                     Interpreter->InterpreterEnvironment->Heap.HeapData[ToWrite.Value.ClassObjectPointer->Members[builtin_hashcode___buffer__]].Value.StringObjectPointer)).c_str(),
+                             Interpreter->InterpreterEnvironment->Heap.HeapData[ToWrite.Value.ClassObjectPointer->Members[builtin_hashcode___buffer__]].Value.StringObjectPointer->Length,
                              1,
                              fp);
             } else {
