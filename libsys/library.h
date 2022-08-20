@@ -25,6 +25,12 @@ void System_getOptionalData(XScript::ParamToMethod Param);
 
 void System_setOptionalData(XScript::ParamToMethod Param);
 
+/**
+ * System.isEqual(lhs, rhs)
+ * @note Get 2 heap pointer from stack, and deep-compare with 2 elements.
+ */
+void System_isEqual(XScript::ParamToMethod Param);
+
 extern "C" XScript::NativeLibraryInformation Initialize();
 
 #endif //XSCRIPT2STDLIB_LIBRARY_H

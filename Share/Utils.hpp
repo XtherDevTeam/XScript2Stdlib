@@ -24,6 +24,8 @@ XScript::EnvBytesObject * GetBytesObject(XScript::BytecodeInterpreter &Interpret
 
 XScript::XString deci2bin(XScript::XDecimal Dec);
 
+bool isEqual(XScript::BytecodeInterpreter *Interpreter, XScript::XHeapIndexType A, XScript::XHeapIndexType B);
+
 #define builtin_hashcode___buffer__ (XScript::XIndexType)17751072636344391196
 
 #endif //XSCRIPT2STDLIB_UTILS_HPP

@@ -163,8 +163,21 @@ void System_setOptionalData(XScript::ParamToMethod Param) {
             *Interpreter,
             Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack());
 
-    auto Data = Interpreter->InterpreterEnvironment->OptionalData.insert({&Key->Dest, &Val->Dest});
+    Interpreter->InterpreterEnvironment->OptionalData.insert({&Key->Dest, &Val->Dest});
     Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
             {EnvironmentStackItem::ItemKind::Integer, (EnvironmentStackItem::ItemValue) (XIndexType) {}});
+    Interpreter->InstructionFuncReturn((BytecodeStructure::InstructionParam) (XIndexType) {});
+}
+
+void System_isEqual(XScript::ParamToMethod Param) {
+    using namespace XScript;
+    auto Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
+
+    auto R = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack().Value.HeapPointerVal;
+    auto L = Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack().Value.HeapPointerVal;
+
+    Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
+            {EnvironmentStackItem::ItemKind::Boolean, (EnvironmentStackItem::ItemValue) isEqual(Interpreter, L, R)});
+
     Interpreter->InstructionFuncReturn((BytecodeStructure::InstructionParam) (XIndexType) {});
 }
