@@ -13,6 +13,8 @@ extern "C" XScript::NativeLibraryInformation Initialize() {
     Methods[XScript::Hash(L"version")] = {0, System_version};
     Methods[XScript::Hash(L"sizeOfBuffer")] = {0, System_sizeOfBuffer};
     Methods[XScript::Hash(L"currentHeapSize")] = {0, System_currentHeapSize};
+    Methods[XScript::Hash(L"getOptionalData")] = {0, System_getOptionalData};
+    Methods[XScript::Hash(L"setOptionalData")] = {0, System_setOptionalData};
 
     XScript::XMap<XScript::XIndexType, XScript::NativeClassInformation> Classes;
     Classes[XScript::Hash(L"System")] = {L"System", Methods};
@@ -108,8 +110,8 @@ void System_sizeOfBuffer(XScript::ParamToMethod Param) {
         case XScript::EnvObject::ObjectKind::BytesObject:
             Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
                     {
-                        EnvironmentStackItem::ItemKind::Integer,
-                        (EnvironmentStackItem::ItemValue) (XInteger) Buf.Value.BytesObjectPointer->Length});
+                            EnvironmentStackItem::ItemKind::Integer,
+                            (EnvironmentStackItem::ItemValue) (XInteger) Buf.Value.BytesObjectPointer->Length});
             break;
         default:
             throw XScript::BytecodeInterpretError(L"RuntimeError: Expected a buffer");
@@ -126,4 +128,43 @@ void System_currentHeapSize(XScript::ParamToMethod Param) {
                     EnvironmentStackItem::ItemKind::Integer,
                     (EnvironmentStackItem::ItemValue) (XInteger) Interpreter->InterpreterEnvironment->Heap.HeapData.size()});
     Interpreter->InstructionFuncReturn((BytecodeStructure::InstructionParam) {(XInteger) {}});
+}
+
+void System_getOptionalData(XScript::ParamToMethod Param) {
+    using namespace XScript;
+    auto Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
+
+    try {
+        auto Data = Interpreter->InterpreterEnvironment->OptionalData.at(
+                &GetStringObject(
+                        *Interpreter,
+                        Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack())->Dest);
+        Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
+                {EnvironmentStackItem::ItemKind::HeapPointer,
+                 (EnvironmentStackItem::ItemValue) Interpreter->InterpreterEnvironment->Heap.PushElement(
+                         {XScript::EnvObject::ObjectKind::StringObject,
+                          (EnvObject::ObjectValue) CreateEnvStringObjectFromXString(Data)})});
+    } catch (...) {
+        PushClassObjectStructure(Interpreter,
+                                 ConstructInternalErrorStructure(Interpreter, L"VMError",
+                                                                 L"getOptionalData: data not exist."));
+    }
+    Interpreter->InstructionFuncReturn((BytecodeStructure::InstructionParam) (XIndexType) {});
+}
+
+void System_setOptionalData(XScript::ParamToMethod Param) {
+    using namespace XScript;
+    auto Interpreter = static_cast<BytecodeInterpreter *>(Param.InterpreterPointer);
+
+    auto Val = GetStringObject(
+            *Interpreter,
+            Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack());
+    auto Key = GetStringObject(
+            *Interpreter,
+            Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PopValueFromStack());
+
+    auto Data = Interpreter->InterpreterEnvironment->OptionalData.insert({&Key->Dest, &Val->Dest});
+    Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.PushValueToStack(
+            {EnvironmentStackItem::ItemKind::Integer, (EnvironmentStackItem::ItemValue) (XIndexType) {}});
+    Interpreter->InstructionFuncReturn((BytecodeStructure::InstructionParam) (XIndexType) {});
 }

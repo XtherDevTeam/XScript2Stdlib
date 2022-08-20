@@ -21,6 +21,10 @@ void System_sizeOfBuffer(XScript::ParamToMethod Param);
 
 void System_currentHeapSize(XScript::ParamToMethod Param);
 
+void System_getOptionalData(XScript::ParamToMethod Param);
+
+void System_setOptionalData(XScript::ParamToMethod Param);
+
 extern "C" XScript::NativeLibraryInformation Initialize();
 
 #endif //XSCRIPT2STDLIB_LIBRARY_H
