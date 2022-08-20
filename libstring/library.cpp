@@ -588,7 +588,7 @@ void formatter(XScript::ParamToMethod Param) {
                         }
                         case FormatterTagInfo::TagKind::Deci: {
                             std::wstringstream ss;
-                            ss << std::setprecision(static_cast<int>(CurTag.Precision))
+                            ss << std::fixed << std::setprecision(static_cast<int>(CurTag.Precision))
                                << Interpreter->InterpreterEnvironment->Threads[Interpreter->ThreadID].Stack.GetValueFromStack(
                                        Cur++).Value.DeciVal;
                             Res += ss.str();
