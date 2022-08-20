@@ -77,14 +77,13 @@ XScript::XHeapIndexType CloneObject(XScript::BytecodeInterpreter *Interpreter, X
         }
         case XScript::EnvObject::ObjectKind::ClassObject: {
             EnvClassObject *Obj = NewEnvClassObject();
-            XIndexType N = 0;
             Obj->Self = I.Value.ClassObjectPointer->Self;
             Obj->Parent = I.Value.ClassObjectPointer->Parent;
             for (auto &item : I.Value.ClassObjectPointer->Members) {
                 Obj->Members[item.first] = CloneObject(Interpreter, item.second);
             }
             return Interpreter->InterpreterEnvironment->Heap.PushElement(
-                    {XScript::EnvObject::ObjectKind::ArrayObject, (EnvObject::ObjectValue) Obj});
+                    {XScript::EnvObject::ObjectKind::ClassObject, (EnvObject::ObjectValue) Obj});
         }
         case XScript::EnvObject::ObjectKind::BytesObject: {
             EnvBytesObject *Str = CreateEnvBytesObject(I.Value.BytesObjectPointer->Length);
