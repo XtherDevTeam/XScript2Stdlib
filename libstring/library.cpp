@@ -76,6 +76,7 @@ extern "C" XScript::NativeLibraryInformation Initialize() {
     Methods[XScript::Hash(L"toBool")] = {2, toBool};
     Methods[XScript::Hash(L"toBytes")] = {2, toBytes};
     Methods[XScript::Hash(L"toDeci")] = {2, toDeci};
+    Methods[XScript::Hash(L"length")] = {2, length};
     Methods[XScript::Hash(L"formatter")] = {2, formatter};
     Methods[builtin_hash_code___instruction_add__] = {2, __instruction_add__};
 
