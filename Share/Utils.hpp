@@ -5,6 +5,8 @@
 #ifndef XSCRIPT2STDLIB_UTILS_HPP
 #define XSCRIPT2STDLIB_UTILS_HPP
 
+#include <sstream>
+
 #include "../XScript2/Executor/EnvStringObject.hpp"
 #include "../XScript2/Executor/BytecodeInterpreter.hpp"
 
